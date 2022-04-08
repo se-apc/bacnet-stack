@@ -24,6 +24,12 @@ tu run WHOIS application:
 applications should also be present in _build directory after a build.
 
 To run the Elixir NIF-based application:
+./lib_build.sh
+cd apps/nif/
+make
+iex -S mix
+iex> BacnetNif.setup_bacnet_device()
+iex> BacnetNif.send_iam(12)
 
 To run the Elixir Linked-In Driver-based application:
 ./lib_build.sh
