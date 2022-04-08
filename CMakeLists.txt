@@ -67,7 +67,10 @@ set(BACNET_PROTOCOL_REVISION 19)
 
 find_package(Threads)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
+    src/driver/port_driver.c
+    src/nif/bacnet_nif.c
+    src/nif/complex.c
     src/bacnet/abort.c
     src/bacnet/abort.h
     src/bacnet/access_rule.c
@@ -415,7 +418,17 @@ target_sources(
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/datalink/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/basic/sys/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/basic/npdu/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/basic/binding/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/basic/service/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/bacnet/basic/object/>
          $<INSTALL_INTERFACE:include/bacnet/>)
+target_link_directories(
+  ${PROJECT_NAME}
+  PUBLIC /home/user/.asdf/installs/erlang/24.1.3/usr/lib/)
 if(BUILD_SHARED_LIBS)
   set_target_properties(
     ${PROJECT_NAME}
@@ -437,7 +450,10 @@ target_compile_definitions(
   $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:BACNET_STACK_STATIC_DEFINE>
   PRIVATE
   PRINT_ENABLED=1)
-target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads)
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  ei
+  Threads::Threads)
 
 add_library(
   ${PROJECT_NAME}::${PROJECT_NAME}

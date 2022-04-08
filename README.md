@@ -1,3 +1,16 @@
+# Schneider Electric, NMC Notes
+to update cmake files after changes to CMakeFiles.txt:
+mkdir _build
+cd _build
+cmake ..
+
+to build the bacnet_stack.so Library only (applications build fails due to linker issues):
+./lib_build.sh
+
+to run IAM application:
+./_build/iam  1234 260 480 --mac 192.168.0.116:47808 --dadr 192.168.0.109:47808
+
+
 # BACnet Stack 
 
 BACnet open source protocol stack for embedded systems, Linux, and Windows
