@@ -4,11 +4,37 @@ mkdir _build
 cd _build
 cmake ..
 
-to build the bacnet_stack.so Library only (applications build fails due to linker issues):
+to build the bacnet_stack.so Library only (builds of the applications fail due to linker issues):
 ./lib_build.sh
 
+to build an IAM app only:
+cd apps/iam
+./build.sh
+
+to build the WHOIS app only:
+cd apps/whois
+./build.sh
+
 to run IAM application:
-./_build/iam  1234 260 480 --mac 192.168.0.116:47808 --dadr 192.168.0.109:47808
+./apps/iam/baciam  1234 260 480 --mac 192.168.0.116:47808 --dadr 192.168.0.109:47808
+
+tu run WHOIS application:
+./apps/whois/bacwi
+
+applications should also be present in _build directory after a build.
+
+To run the Elixir NIF-based application:
+
+To run the Elixir Linked-In Driver-based application:
+./lib_build.sh
+cd apps/elixir/
+make
+iex -S mix
+iex> BacnetEx.setup_bacnet_device()
+iex> BacnetEx.who_is()
+iex> BacnetEx.check_rx_data()
+Repeat last command until a sending Device on the network is discovered.
+
 
 
 # BACnet Stack 
