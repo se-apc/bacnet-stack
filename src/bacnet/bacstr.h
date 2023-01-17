@@ -77,7 +77,7 @@ extern "C" {
     uint8_t bitstring_bytes_used(
         BACNET_BIT_STRING * bit_string);
     BACNET_STACK_EXPORT
-    uint8_t bitstring_bits_capacity(
+    unsigned bitstring_bits_capacity(
         BACNET_BIT_STRING * bit_string);
 /* used for encoding and decoding from the APDU */
     BACNET_STACK_EXPORT
@@ -234,13 +234,6 @@ extern "C" {
     bool octetstring_value_same(
         BACNET_OCTET_STRING * octet_string1,
         BACNET_OCTET_STRING * octet_string2);
-
-#ifdef BAC_TEST
-#include "ctest.h"
-    BACNET_STACK_EXPORT
-    void testBACnetStrings(
-        Test * pTest);
-#endif
 
 #ifdef __cplusplus
 }

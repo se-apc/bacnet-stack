@@ -142,21 +142,8 @@ static void My_Read_Property_Multiple_Ack_Handler(uint8_t *service_request,
         if (len > 0) {
             while (rpm_data) {
                 rpm_ack_print_data(rpm_data);
-                rpm_property = rpm_data->listOfProperties;
-                while (rpm_property) {
-                    value = rpm_property->value;
-                    while (value) {
-                        old_value = value;
-                        value = value->next;
-                        free(old_value);
-                    }
-                    old_rpm_property = rpm_property;
-                    rpm_property = rpm_property->next;
-                    free(old_rpm_property);
-                }
-                old_rpm_data = rpm_data;
-                rpm_data = rpm_data->next;
-                free(old_rpm_data);
+                rpm_data = rpm_data_free(rpm_data);
+                
             }
         } else {
             fprintf(stderr, "RPM Ack Malformed! Freeing memory...\n");
@@ -457,8 +444,9 @@ int main(int argc, char *argv[])
         if (current_seconds != last_seconds) {
             tsm_timer_milliseconds(((current_seconds - last_seconds) * 1000));
         }
-        if (Error_Detected)
+        if (Error_Detected) {
             break;
+}
         /* wait until the device is bound, or timeout and quit */
         if (!found) {
             found = address_bind_request(
@@ -500,7 +488,8 @@ int main(int argc, char *argv[])
         last_seconds = current_seconds;
     }
 
-    if (Error_Detected)
+    if (Error_Detected) {
         return 1;
+}
     return 0;
 }

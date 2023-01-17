@@ -51,10 +51,6 @@ cmake:
 	[ -d $(CMAKE_BUILD_DIR) ] || mkdir -p $(CMAKE_BUILD_DIR)
 	[ -d $(CMAKE_BUILD_DIR) ] && cd $(CMAKE_BUILD_DIR) && cmake .. -DBUILD_SHARED_LIBS=ON && cmake --build . --clean-first
 
-.PHONY: cmake-test
-cmake-test:
-	[ -d $(CMAKE_BUILD_DIR) ] && $(MAKE) -s -C build test
-
 .PHONY: abort
 abort:
 	$(MAKE) -s -C apps $@
@@ -195,6 +191,10 @@ stm32f4xx-clean: ports/stm32f4xx/Makefile
 mstpsnap: ports/linux/mstpsnap.mak
 	$(MAKE) -s -C ports/linux -f mstpsnap.mak clean all
 
+.PHONY: lwip
+lwip: ports/lwip/Makefile
+	$(MAKE) -s -C ports/lwip clean all
+
 .PHONY: pretty
 pretty:
 	find ./src -iname *.h -o -iname *.c -exec \
@@ -212,11 +212,12 @@ pretty-ports:
 	find ./ports -maxdepth 2 -type f -iname *.h -o -iname *.c -exec \
 	clang-format -i -style=file -fallback-style=none {} \;
 
+CLANG_TIDY_OPTIONS = -fix-errors -checks="readability-braces-around-statements"
+CLANG_TIDY_OPTIONS += -- -Isrc -Iports/linux
 .PHONY: tidy
 tidy:
-	find ./src -iname *.h -o -iname *.c -exec \
-	clang-tidy {} -fix-errors -checks="readability-braces-around-statements" \
-	-- -Isrc -Iports/linux \;
+	find ./src -iname *.h -o -iname *.c -exec clang-tidy {} $(CLANG_TIDY_OPTIONS) \;
+	find ./apps -iname *.c -exec clang-tidy {} $(CLANG_TIDY_OPTIONS) \;
 
 .PHONY: lint
 lint:
@@ -225,10 +226,27 @@ lint:
 CPPCHECK_OPTIONS = --enable=warning,portability
 CPPCHECK_OPTIONS += --template=gcc
 CPPCHECK_OPTIONS += --suppress=selfAssignment
-
+CPPCHECK_OPTIONS += --suppress=integerOverflow
+CPPCHECK_OPTIONS += --error-exitcode=1
 .PHONY: cppcheck
 cppcheck:
 	cppcheck $(CPPCHECK_OPTIONS) --quiet --force ./src/
+
+.PHONY: flawfinder
+flawfinder:
+	flawfinder --minlevel 5 --error-level=5 ./src/
+
+IGNORE_WORDS = ba
+CODESPELL_OPTIONS = --write-changes --interactive 3 --enable-colors
+CODESPELL_OPTIONS += --ignore-words-list $(IGNORE_WORDS)
+.PHONY: codespell
+codespell:
+	codespell $(CODESPELL_OPTIONS) ./src
+
+SPELL_OPTIONS = --enable-colors --ignore-words-list $(IGNORE_WORDS)
+.PHONY: spell
+spell:
+	codespell $(SPELL_OPTIONS) ./src
 
 .PHONY: clean
 clean: ports-clean
@@ -238,12 +256,11 @@ clean: ports-clean
 	$(MAKE) -s -C apps/router-ipv6 clean
 	$(MAKE) -s -C apps/router-mstp clean
 	$(MAKE) -s -C apps/gateway clean
+	$(MAKE) -s -C ports/lwip clean
 	$(MAKE) -s -C test clean
 	rm -rf ./build
 
 .PHONY: test
 test:
 	$(MAKE) -s -C test clean
-	$(MAKE) -s -C test all
-	$(MAKE) -s -C test report
-
+	$(MAKE) -s -j -C test all
