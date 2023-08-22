@@ -1001,6 +1001,7 @@ static void datalink_init(void)
 
     /* BACnet/IP Initialization */
     bip_debug_enable();
+    bvlc6_debug_enable();
     pEnv = getenv("BACNET_IP_PORT");
     if (pEnv) {
         bip_set_port((uint16_t)strtol(pEnv, NULL, 0));
