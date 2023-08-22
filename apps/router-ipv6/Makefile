@@ -6,6 +6,7 @@
 
 # Executable file name
 TARGET = bacroute
+BACNET_DEFINES += -DBBMD6_ENABLED=1
 
 TARGET_BIN = ${TARGET}$(TARGET_EXT)
 
