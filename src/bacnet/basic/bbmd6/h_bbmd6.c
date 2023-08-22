@@ -388,7 +388,7 @@ static void bbmd6_send_pdu_bdt(uint8_t *mtu, unsigned int mtu_len)
 
     if (mtu) {
         bip6_get_addr(&my_addr);
-        for (i = 0; i < MAX_BBMD_ENTRIES; i++) {
+        for (i = 0; i < MAX_BBMD6_ENTRIES; i++) {
             if (BBMD_Table[i].valid) {
                 if (bvlc6_address_different(
                         &my_addr, &BBMD_Table[i].bip6_address)) {
@@ -415,7 +415,7 @@ static void bbmd6_send_pdu_fdt(uint8_t *mtu, unsigned int mtu_len)
 
     if (mtu) {
         bip6_get_addr(&my_addr);
-        for (i = 0; i < MAX_FD_ENTRIES; i++) {
+        for (i = 0; i < MAX_FD6_ENTRIES; i++) {
             if (FD_Table[i].valid) {
                 if (bvlc6_address_different(
                         &my_addr, &FD_Table[i].bip6_address)) {
@@ -444,7 +444,7 @@ static void bbmd6_send_forward_npdu(BACNET_IP6_ADDRESS *address,
     uint16_t mtu_len = 0;
     unsigned i = 0; /* loop counter */
 
-    for (i = 0; i < MAX_BBMD_ENTRIES; i++) {
+    for (i = 0; i < MAX_BBMD6_ENTRIES; i++) {
         if (BBMD_Table[i].valid) {
             if (bbmd6_address_match_self(&BBMD_Table[i].bip6_address)) {
                 /* don't forward to our selves */
@@ -453,7 +453,7 @@ static void bbmd6_send_forward_npdu(BACNET_IP6_ADDRESS *address,
             }
         }
     }
-    for (i = 0; i < MAX_FD_ENTRIES; i++) {
+    for (i = 0; i < MAX_FD6_ENTRIES; i++) {
         if (FD_Table[i].valid) {
             if (bbmd6_address_match_self(&FD_Table[i].bip6_address)) {
                 /* don't forward to our selves */
@@ -871,6 +871,7 @@ int bvlc6_bbmd_enabled_handler(BACNET_IP6_ADDRESS *addr,
     bool send_result = false;
     uint16_t offset = 0;
     BACNET_IP6_ADDRESS fwd_address = { { 0 } };
+    BACNET_IP6_ADDRESS bvlc_dest = { 0 };
 
     header_len =
         bvlc6_decode_header(mtu, mtu_len, &message_type, &message_length);
@@ -894,7 +895,7 @@ int bvlc6_bbmd_enabled_handler(BACNET_IP6_ADDRESS *addr,
                 }
                 break;
             case BVLC6_REGISTER_FOREIGN_DEVICE:
-                result_code = BVLC6_RESULT_REGISTER_FOREIGN_DEVICE_NAK;
+                result_code = BVLC6_RESULT_SUCCESSFUL_COMPLETION;
                 send_result = true;
                 break;
             case BVLC6_DELETE_FOREIGN_DEVICE:
