@@ -295,7 +295,6 @@ bool Multistate_Value_Object_Name(
     unsigned index = 0; /* offset from instance lookup */
     bool status = false;
 
-
     index = Multistate_Value_Instance_To_Index(object_instance);
     if (index < MSV_Max_Index) {
         status = characterstring_init_ansi(object_name, Object_Name[index]);
