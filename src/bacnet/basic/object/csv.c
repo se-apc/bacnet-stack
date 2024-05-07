@@ -278,10 +278,11 @@ bool CharacterString_Value_Present_Value_Set(
     index = CharacterString_Value_Instance_To_Index(object_instance);
     PRINTF("@@@ PVS STATUS TEST \r\n");
     if (index < CSV_Max_Index) {
-         if (!characterstring_same(&Present_Value[index], present_value)) {
+         if (!characterstring_same(&Present_Value[index].value, present_value)) {
+            PRINTF("@@@ PVS STATUS TEST 2 \r\n");
              Changed[index] = true;
          }
-        status = characterstring_copy(&Present_Value[index], present_value);
+        status = characterstring_copy(&Present_Value[index].value, present_value);
         PRINTF("@@@ PVS STATUS %s \r\n", status);
         PRINTF("@@@ PRESENT VALUE %s \r\n", Present_Value[index].value);
     }
