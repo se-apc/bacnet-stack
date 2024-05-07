@@ -214,6 +214,7 @@ bool Multistate_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = Multistate_Value_Instance_To_Index(object_instance);
+    PRINTF("### PVS STATUS TEST");
     if (index < MSV_Max_Index) {
         if ((value > 0) && (value <= MULTISTATE_NUMBER_OF_STATES)) {
             if (Present_Value[index] != (uint8_t)value) {
@@ -221,8 +222,8 @@ bool Multistate_Value_Present_Value_Set(
             }
             Present_Value[index] = (uint8_t)value;
             status = true;
-            PRINTF("@@@ PVS STATUS %s", status);
-            PRINTF("@@@ PRESENT VALUE %u \r\n", Present_Value[index]);
+            PRINTF("### PVS STATUS %s", status);
+            PRINTF("### PRESENT VALUE %u \r\n", Present_Value[index]);
         }
     }
 

@@ -262,6 +262,7 @@ bool Integer_Value_Present_Value_Set(
 
     (void)priority;
     index = Integer_Value_Instance_To_Index(object_instance);
+    PRINTF("### PVS STATUS TEST");
     if (index < MAX_INTEGER_VALUES) {
         Integer_Value[index].Present_Value = value;
         status = true;

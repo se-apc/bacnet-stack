@@ -276,13 +276,13 @@ bool CharacterString_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
-
+    PRINTF("@@@ PVS STATUS TEST \r\n");
     if (index < CSV_Max_Index) {
          if (!characterstring_same(&Present_Value[index], present_value)) {
              Changed[index] = true;
          }
         status = characterstring_copy(&Present_Value[index], present_value);
-        PRINTF("@@@ PVS STATUS %s", status);
+        PRINTF("@@@ PVS STATUS %s \r\n", status);
         PRINTF("@@@ PRESENT VALUE %s \r\n", Present_Value[index].value);
     }
 
@@ -650,6 +650,7 @@ bool CharacterString_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
+            PRINTF("@@@ TEST STATUS 0 \r\n");
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_CHARACTER_STRING);
             PRINTF("@@@ STATUS 0 %s \r\n", status);
