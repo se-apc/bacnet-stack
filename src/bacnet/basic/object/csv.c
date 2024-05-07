@@ -283,8 +283,9 @@ bool CharacterString_Value_Present_Value_Set(
          if (!characterstring_same(&Present_Value[index], present_value)) {
             PRINTF("@@@ PVS STATUS TEST 2 \r\n");
             Changed[index] = true;
-         }
-        status = characterstring_copy(&Present_Value[index], present_value);
+        }
+        PRINTF("@@@ PVS STATUS TEST 2 \r\n");
+        status = characterstring_copy(&Present_Value[index], &present_value);
         PRINTF("@@@ PVS STATUS %s \r\n", status);
         PRINTF("@@@ PRESENT VALUE %s \r\n", Present_Value[index].value);
     }
