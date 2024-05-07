@@ -291,8 +291,9 @@ bool CharacterString_Value_Present_Value_Set(
             status = true;
         }
         PRINTF("@@@ PVS STATUS TEST 2 \r\n");
-        //status = characterstring_copy(&Present_Value[index], present_value); // segmentation fault is cause by this line 
-        strncpy(Present_Value[index].value, present_value->value, sizeof(Present_Value[index].value));
+        // added back in below
+        status = characterstring_copy(&Present_Value[index], present_value); // segmentation fault is cause by this line 
+       // strncpy(Present_Value[index].value, present_value->value, sizeof(Present_Value[index].value));
         PRINTF("@@@ PVS STATUS %s \r\n", status);
         PRINTF("@@@ PRESENT VALUE %s \r\n", Present_Value[index].value);
     }
