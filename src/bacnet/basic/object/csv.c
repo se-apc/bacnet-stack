@@ -277,8 +277,13 @@ bool CharacterString_Value_Present_Value_Set(
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
     PRINTF("@@@ PVS STATUS TEST %u \r\n", index);
-    PRINTF("PRESENT VALUE INCOMING %s \r\n", present_value->value);
-    PRINTF("PRESENT VALUE DD %s \r\n", Present_Value[index].value);
+    uint8_t testen = characterstring_encoding(&present_value);
+    uint8_t pv_test = characterstring_encoding(&Present_Value[index]);
+    PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
+    PRINTF("PRESENT VALUE DD EN %u \r\n", pv_test);
+    bool en_test = characterstring_set_encoding(&present_value, CHARACTER_ANSI_X34);
+    testen = characterstring_encoding(&present_value);
+    PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
     if (index < CSV_Max_Index) {
          if (!characterstring_same(&Present_Value[index], present_value)) {
             PRINTF("@@@ PVS STATUS TEST 2 \r\n");
