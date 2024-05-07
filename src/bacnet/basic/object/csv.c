@@ -276,9 +276,11 @@ bool CharacterString_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
-    PRINTF("@@@ PVS STATUS TEST \r\n");
+    PRINTF("@@@ PVS STATUS TEST %u \r\n", index);
+    PRINTF("PRESENT VALUE INCOMING %s \r\n", present_value->value);
+    PRINTF("PRESENT VALUE DD %s \r\n", Present_Value[index].value);
     if (index < CSV_Max_Index) {
-         if (!characterstring_same(&Present_Value[index].value, present_value)) {
+         if (!characterstring_same(&Present_Value[index], present_value)) {
             PRINTF("@@@ PVS STATUS TEST 2 \r\n");
             Changed[index] = true;
          }
