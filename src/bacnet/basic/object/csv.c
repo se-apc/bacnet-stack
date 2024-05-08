@@ -257,7 +257,7 @@ bool CharacterString_Value_Present_Value(
         status = characterstring_copy(present_value, &Present_Value[index]);
     }
     PRINTF("@@@ PV INCOMING %s \r\n", present_value->value);
-    PRINTF("@@@ PV VALUE DD EN %u \r\n", Present_Value[index].value);
+    PRINTF("@@@ PV VALUE DD EN %s \r\n", Present_Value[index].value);
     return status;
 
 }
