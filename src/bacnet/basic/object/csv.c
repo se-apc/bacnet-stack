@@ -284,7 +284,7 @@ bool CharacterString_Value_Present_Value_Set(
   //  uint8_t testen = characterstring_encoding(&present_value);
   //  uint8_t pv_test = characterstring_encoding(&Present_Value[index]);
     PRINTF("@@@ PVS INCOMING %s \r\n", present_value->value);
-    PRINTF("@@@ PVS VALUE DD EN %u \r\n", Present_Value[index].value);
+    PRINTF("@@@ PVS VALUE DD EN %s \r\n", Present_Value[index].value);
  //   bool en_test = characterstring_set_encoding(&present_value, CHARACTER_ANSI_X34);
  //   testen = characterstring_encoding(&present_value);
  //   PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
