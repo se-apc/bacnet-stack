@@ -266,7 +266,6 @@ bool Integer_Value_Present_Value_Set(
     if (index < MAX_INTEGER_VALUES) {
         Integer_Value[index].Present_Value = value;
         status = true;
-        PRINTF("$$$ PVS STATUS %s", status);
         PRINTF("$$$ PRESENT VALUE %u \r\n", Integer_Value[index].Present_Value);
     }
 

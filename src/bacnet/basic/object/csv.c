@@ -250,11 +250,14 @@ bool CharacterString_Value_Present_Value(
     unsigned index = 0; /* offset from instance lookup */
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
+    PRINTF("@@@ PV OBJECT INSTANCE %u \r\n", object_instance);
+    PRINTF("@@@ PV STATUS TEST %u \r\n", index);
 
     if (index < CSV_Max_Index) {
         status = characterstring_copy(present_value, &Present_Value[index]);
     }
-
+    PRINTF("@@@ PV INCOMING %s \r\n", present_value->value);
+    PRINTF("@@@ PV VALUE DD EN %u \r\n", Present_Value[index].value);
     return status;
 
 }
@@ -276,25 +279,22 @@ bool CharacterString_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
+    PRINTF("@@@ PVS OBJECT INSTANCE %u \r\n", object_instance);
     PRINTF("@@@ PVS STATUS TEST %u \r\n", index);
-    uint8_t testen = characterstring_encoding(&present_value);
-    uint8_t pv_test = characterstring_encoding(&Present_Value[index]);
-    PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
-    PRINTF("PRESENT VALUE DD EN %u \r\n", pv_test);
-    bool en_test = characterstring_set_encoding(&present_value, CHARACTER_ANSI_X34);
-    testen = characterstring_encoding(&present_value);
-    PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
+  //  uint8_t testen = characterstring_encoding(&present_value);
+  //  uint8_t pv_test = characterstring_encoding(&Present_Value[index]);
+    PRINTF("@@@ PVS INCOMING %s \r\n", present_value->value);
+    PRINTF("@@@ PVS VALUE DD EN %u \r\n", Present_Value[index].value);
+ //   bool en_test = characterstring_set_encoding(&present_value, CHARACTER_ANSI_X34);
+ //   testen = characterstring_encoding(&present_value);
+ //   PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
     if (index < CSV_Max_Index) {
          if (!characterstring_same(&Present_Value[index], present_value)) {
-            PRINTF("@@@ PVS STATUS TEST 2 \r\n");
             Changed[index] = true;
             status = true;
         }
-        PRINTF("@@@ PVS STATUS TEST 2 \r\n");
-        // added back in below
         status = characterstring_copy(&Present_Value[index], present_value); // segmentation fault is cause by this line 
-       // strncpy(Present_Value[index].value, present_value->value, sizeof(Present_Value[index].value));
-      //  PRINTF("@@@ PVS STATUS %s \r\n", status);
+
         PRINTF("@@@ PRESENT VALUE %s \r\n", Present_Value[index].value);
     }
 

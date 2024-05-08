@@ -222,7 +222,6 @@ bool Multistate_Value_Present_Value_Set(
             }
             Present_Value[index] = (uint8_t)value;
             status = true;
-            PRINTF("### PVS STATUS %s", status);
             PRINTF("### PRESENT VALUE %u \r\n", Present_Value[index]);
         }
     }
