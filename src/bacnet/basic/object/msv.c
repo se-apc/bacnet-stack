@@ -215,6 +215,10 @@ bool Multistate_Value_Present_Value_Set(
 
     index = Multistate_Value_Instance_To_Index(object_instance);
     PRINTF("### PVS STATUS TEST");
+    PRINTF("### PVS OBJECT INSTANCE %u \r\n", object_instance);
+    PRINTF("### PVS STATUS TEST %u \r\n", index);
+    PRINTF("### PVS INCOMING %u \r\n", value);
+    PRINTF("### PVS VALUE DD EN %u \r\n", Present_Value[index]);
     if (index < MSV_Max_Index) {
         if ((value > 0) && (value <= MULTISTATE_NUMBER_OF_STATES)) {
             if (Present_Value[index] != (uint8_t)value) {
@@ -623,6 +627,7 @@ bool Multistate_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_UNSIGNED_INT);
             PRINTF("### STATUS 0 %d \r\n", status);
+            PRINTF("### VALUE %u \r\n", value.type.Unsigned_Int);
             if (status) {
                 status = Multistate_Value_Present_Value_Set(
                     wp_data->object_instance, value.type.Unsigned_Int);
