@@ -262,15 +262,10 @@ bool Integer_Value_Present_Value_Set(
 
     (void)priority;
     index = Integer_Value_Instance_To_Index(object_instance);
-    PRINTF("$$$ PVS STATUS TEST");
-    PRINTF("$$$ PVS OBJECT INSTANCE %u \r\n", object_instance);
-    PRINTF("$$$ PVS STATUS TEST %u \r\n", index);
-    PRINTF("$$$ PVS INCOMING %u \r\n", value);
-    PRINTF("$$$ PVS VALUE DD EN %u \r\n", Integer_Value[index].Present_Value);
+
     if (index < MAX_INTEGER_VALUES) {
         Integer_Value[index].Present_Value = value;
         status = true;
-        PRINTF("$$$ PRESENT VALUE %u \r\n", Integer_Value[index].Present_Value);
     }
 
     return status;
@@ -543,12 +538,9 @@ bool Integer_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         case PROP_PRESENT_VALUE:
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_SIGNED_INT);
-            PRINTF("$$$ STATUS 0 %d \r\n", status);
-            PRINTF("$$$ VALUE %d \r\n", value.type.Signed_Int);
             if (status) {
                 Integer_Value_Present_Value_Set(wp_data->object_instance,
                     value.type.Signed_Int, wp_data->priority);
-                PRINTF("$$$ STATUS 1 %d \r\n", status);
             }
             break;
         case PROP_OUT_OF_SERVICE:

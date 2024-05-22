@@ -39,7 +39,6 @@
 #include "bacnet/basic/object/csv.h"
 #include "bacnet/basic/services.h"
 
-#define PRINTF printf
 
 /* number of demo objects */
 #ifndef MAX_CHARACTERSTRING_VALUES
@@ -250,14 +249,11 @@ bool CharacterString_Value_Present_Value(
     unsigned index = 0; /* offset from instance lookup */
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
-    PRINTF("@@@ PV OBJECT INSTANCE %u \r\n", object_instance);
-    PRINTF("@@@ PV STATUS TEST %u \r\n", index);
 
     if (index < CSV_Max_Index) {
         status = characterstring_copy(present_value, &Present_Value[index]);
     }
-    PRINTF("@@@ PV INCOMING %s \r\n", present_value->value);
-    PRINTF("@@@ PV VALUE DD EN %s \r\n", Present_Value[index].value);
+
     return status;
 
 }
@@ -279,23 +275,14 @@ bool CharacterString_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = CharacterString_Value_Instance_To_Index(object_instance);
-    PRINTF("@@@ PVS OBJECT INSTANCE %u \r\n", object_instance);
-    PRINTF("@@@ PVS STATUS TEST %u \r\n", index);
-  //  uint8_t testen = characterstring_encoding(&present_value);
-  //  uint8_t pv_test = characterstring_encoding(&Present_Value[index]);
-    PRINTF("@@@ PVS INCOMING %s \r\n", present_value->value);
-    PRINTF("@@@ PVS VALUE DD EN %s \r\n", Present_Value[index].value);
- //   bool en_test = characterstring_set_encoding(&present_value, CHARACTER_ANSI_X34);
- //   testen = characterstring_encoding(&present_value);
- //   PRINTF("PRESENT VALUE INCOMING EN %u \r\n", testen);
+
     if (index < CSV_Max_Index) {
          if (!characterstring_same(&Present_Value[index], present_value)) {
             Changed[index] = true;
             status = true;
         }
-        status = characterstring_copy(&Present_Value[index], present_value); // segmentation fault is cause by this line 
+        status = characterstring_copy(&Present_Value[index], present_value);
 
-        PRINTF("@@@ PRESENT VALUE %s \r\n", Present_Value[index].value);
     }
 
     return status;
@@ -662,15 +649,12 @@ bool CharacterString_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
-            PRINTF("@@@ TEST STATUS 0 \r\n");
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_CHARACTER_STRING);
-            PRINTF("@@@ VALUE %s \r\n", value.type.Character_String.value);
-            PRINTF("@@@ STATUS 0 %d \r\n", status);
+
             if (status) {
                 status = CharacterString_Value_Present_Value_Set(
                     wp_data->object_instance, &value.type.Character_String);
-                PRINTF("@@@ STATUS 1 %d \r\n", status);
 
                 if (!status) {
                     wp_data->error_class = ERROR_CLASS_PROPERTY;

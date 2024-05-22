@@ -620,12 +620,9 @@ bool Multistate_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         case PROP_PRESENT_VALUE:
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_UNSIGNED_INT);
-            PRINTF("### STATUS 0 %d \r\n", status);
-            PRINTF("### VALUE %u \r\n", value.type.Unsigned_Int);
             if (status) {
                 status = Multistate_Value_Present_Value_Set(
                     wp_data->object_instance, value.type.Unsigned_Int);
-                PRINTF("### STATUS 1 %d \r\n", status);
                 if (!status) {
                     wp_data->error_class = ERROR_CLASS_PROPERTY;
                     wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
