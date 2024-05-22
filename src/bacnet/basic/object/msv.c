@@ -212,7 +212,7 @@ bool Multistate_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = Multistate_Value_Instance_To_Index(object_instance);
-    value = value + 1;
+
     if (index < MSV_Max_Index) {
         if ((value > 0) && (value <= MULTISTATE_NUMBER_OF_STATES)) {
             if (Present_Value[index] != (uint8_t)value) {
