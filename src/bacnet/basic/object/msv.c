@@ -102,8 +102,6 @@ void Multistate_Value_Init(void)
     /* initialize all the analog output priority arrays to NULL */
     for (i = 0; i < MAX_MULTISTATE_VALUES; i++) {
         Present_Value[i] = 1;
-        sprintf(&Object_Name[i][0], "MULTISTATE VALUE %u", i);
-        sprintf(&Object_Description[i][0], "MULTISTATE VALUE %u", i);
         Instance[i] = BACNET_INSTANCE(BACNET_ID_VALUE(i, OBJECT_MULTI_STATE_VALUE));
     }
 
@@ -214,11 +212,7 @@ bool Multistate_Value_Present_Value_Set(
     unsigned index = 0; /* offset from instance lookup */
 
     index = Multistate_Value_Instance_To_Index(object_instance);
-    PRINTF("### PVS STATUS TEST");
-    PRINTF("### PVS OBJECT INSTANCE %u \r\n", object_instance);
-    PRINTF("### PVS STATUS TEST %u \r\n", index);
-    PRINTF("### PVS INCOMING %u \r\n", value);
-    PRINTF("### PVS VALUE DD EN %u \r\n", Present_Value[index]);
+    value = value + 1;
     if (index < MSV_Max_Index) {
         if ((value > 0) && (value <= MULTISTATE_NUMBER_OF_STATES)) {
             if (Present_Value[index] != (uint8_t)value) {
