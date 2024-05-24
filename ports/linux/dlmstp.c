@@ -42,7 +42,6 @@
 /* OS Specific include */
 #include "bacport.h"
 
-#define PRINTF printf
 
 /** @file linux/dlmstp.c  Provides Linux-specific DataLink functions for MS/TP.
  */
@@ -680,7 +679,7 @@ uint8_t dlmstp_max_master(void)
 /* RS485 Baud Rate 9600, 19200, 38400, 57600, 115200 */
 void dlmstp_set_baud_rate(uint32_t baud)
 {
-    PRINTF("TESTING BAUD RATE BACNET");
+    fprintf(stderr, "TESTING BAUD RATE BACNET");
     RS485_Set_Baud_Rate(baud);
 }
 
