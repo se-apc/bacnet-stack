@@ -742,7 +742,9 @@ void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
 {
     fprintf(stderr, "TESTING 0 %u \r\n", baud);
     SHARED_MSTP_DATA *poSharedData;
+    fprintf(stderr, "TESTING 1 %u \r\n", baud);
     struct mstp_port_struct_t *mstp_port = (struct mstp_port_struct_t *)poPort;
+    fprintf(stderr, "TESTING 2 %u \r\n", baud);
     if (!mstp_port) {
         return;
     }
