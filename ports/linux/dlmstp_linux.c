@@ -748,11 +748,13 @@ void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
     if (!mstp_port) {
         return;
     }
+    fprintf(stderr, "TESTING 3 %u \r\n", baud);
     poSharedData = (SHARED_MSTP_DATA *)mstp_port->UserData;
+    fprintf(stderr, "TESTING 4 %u \r\n", baud);
     if (!poSharedData) {
         return;
     }
-
+    fprintf(stderr, "TESTING 5 %u \r\n", baud);
     switch (baud) {
         case 9600:
             poSharedData->RS485_Baud = B9600;
@@ -772,6 +774,7 @@ void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
         default:
             break;
     }
+    fprintf(stderr, "TESTING 6 %u \r\n", baud);
 }
 
 uint32_t dlmstp_baud_rate(void *poPort)
