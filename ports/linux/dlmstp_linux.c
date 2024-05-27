@@ -746,11 +746,10 @@ void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
     struct mstp_port_struct_t *mstp_port = (struct mstp_port_struct_t *)poPort;
     fprintf(stderr, "TESTING 2 %u \r\n", baud);
     if (!mstp_port) {
+        fprintf(stderr, "TESTING 3 %u \r\n", baud);
         return;
     }
-    fprintf(stderr, "TESTING 3 %u \r\n", baud);
     poSharedData = (SHARED_MSTP_DATA *)mstp_port->UserData;
-    fprintf(stderr, "TESTING 4 %u \r\n", baud);
     if (!poSharedData) {
         return;
     }
@@ -774,7 +773,6 @@ void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
         default:
             break;
     }
-    fprintf(stderr, "TESTING 6 %u \r\n", baud);
 }
 
 uint32_t dlmstp_baud_rate(void *poPort)
