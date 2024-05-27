@@ -679,7 +679,6 @@ uint8_t dlmstp_max_master(void)
 /* RS485 Baud Rate 9600, 19200, 38400, 57600, 115200 */
 void dlmstp_set_baud_rate(uint32_t baud)
 {
-    fprintf(stderr, "TESTING BAUD RATE BACNET \r\n");
     RS485_Set_Baud_Rate(baud);
 }
 
