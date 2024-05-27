@@ -32,7 +32,7 @@
 #include "bacnet/bacdef.h"
 #include "bacnet/bacaddr.h"
 #include "bacnet/datalink/mstp.h"
-#include "bacnet/datalink/dlmstp.h"
+/*#include "bacnet/datalink/dlmstp.h" */
 #include "dlmstp_linux.h"
 #include "rs485.h"
 #include "bacnet/npdu.h"
@@ -740,7 +740,7 @@ uint8_t dlmstp_max_master(void *poPort)
 /* RS485 Baud Rate 9600, 19200, 38400, 57600, 115200 */
 void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
 {
-    fprintf(stderr, "TESTING 0");
+    fprintf(stderr, "TESTING 0 %u \r\n", baud);
     SHARED_MSTP_DATA *poSharedData;
     struct mstp_port_struct_t *mstp_port = (struct mstp_port_struct_t *)poPort;
     if (!mstp_port) {
