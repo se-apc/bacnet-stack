@@ -677,6 +677,7 @@ uint8_t dlmstp_max_master(void *poPort)
 /* RS485 Baud Rate 9600, 19200, 38400, 57600, 115200 */
 void dlmstp_set_baud_rate(void *poPort, uint32_t baud)
 {
+    fprintf(stderr, "TESTING LINUX 0 %u \r\n", baud);
     SHARED_MSTP_DATA *poSharedData;
     struct mstp_port_struct_t *mstp_port = (struct mstp_port_struct_t *)poPort;
     if (!mstp_port) {
