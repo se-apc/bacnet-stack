@@ -8,7 +8,7 @@ project(
 #
 # options
 #
-# <INSERT_CMAKE_INSTALL_PREFIX_HERE>
+set(CMAKE_INSTALL_PREFIX "/opt/poky/rzn1/sysroots/x86_64-pokysdk-linux/usr")
 #set(CMAKE_INSTALL_PREFIX "/opt/poky/rzn1/sysroots/x86_64-pokysdk-linux/usr")
 
 add_compile_options(-DDEBUG_PRINT)
@@ -559,7 +559,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     $<$<BOOL:${BACDL_ARCNET}>:ports/linux/arcnet.c>
     $<$<BOOL:${BACDL_MSTP}>:ports/linux/rs485.c>
     $<$<BOOL:${BACDL_MSTP}>:ports/linux/rs485.h>
-    #$<$<BOOL:${BACDL_MSTP}>:ports/linux/dlmstp.c>
+    $<$<BOOL:${BACDL_MSTP}>:ports/linux/dlmstp.c>
     $<$<BOOL:${BACDL_MSTP}>:ports/linux/dlmstp_linux.c>
     $<$<BOOL:${BACDL_MSTP}>:ports/linux/dlmstp_linux.h>
     # ports/linux/rx_fsm.c
