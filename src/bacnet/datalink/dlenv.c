@@ -636,28 +636,28 @@ void dlenv_init(void)
     fprintf(stderr, "ENTERING MSTP DLENV INIT")
     pEnv = getenv("BACNET_MAX_INFO_FRAMES");
     if (pEnv) {
-        fprintf(stderr, "ENTERING MSTP DLENV MAX INFO FRAMES")
+        fprintf(stderr, "ENTERING MSTP DLENV MAX INFO FRAMES");
         dlmstp_set_max_info_frames(strtol(pEnv, NULL, 0));
     } else {
         dlmstp_set_max_info_frames(1);
     }
     pEnv = getenv("BACNET_MAX_MASTER");
     if (pEnv) {
-        fprintf(stderr, "ENTERING MSTP DLENV MAX MASTER")
+        fprintf(stderr, "ENTERING MSTP DLENV MAX MASTER");
         dlmstp_set_max_master(strtol(pEnv, NULL, 0));
     } else {
         dlmstp_set_max_master(127);
     }
     pEnv = getenv("BACNET_MSTP_BAUD");
     if (pEnv) {
-        fprintf(stderr, "ENTERING MSTP DLENV MAX BAUD")
+        fprintf(stderr, "ENTERING MSTP DLENV MAX BAUD");
         dlmstp_set_baud_rate(strtol(pEnv, NULL, 0));
     } else {
         dlmstp_set_baud_rate(38400);
     }
     pEnv = getenv("BACNET_MSTP_MAC");
     if (pEnv) {
-        fprintf(stderr, "ENTERING MSTP DLENV MAC")
+        fprintf(stderr, "ENTERING MSTP DLENV MAC");
         dlmstp_set_mac_address(strtol(pEnv, NULL, 0));
     } else {
         dlmstp_set_mac_address(127);
