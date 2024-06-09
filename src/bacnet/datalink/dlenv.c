@@ -633,7 +633,7 @@ void dlenv_init(void)
         }
     }
 #elif defined(BACDL_MSTP)
-    fprintf(stderr, "ENTERING MSTP DLENV INIT")
+    fprintf(stderr, "ENTERING MSTP DLENV INIT");
     pEnv = getenv("BACNET_MAX_INFO_FRAMES");
     if (pEnv) {
         fprintf(stderr, "ENTERING MSTP DLENV MAX INFO FRAMES");
