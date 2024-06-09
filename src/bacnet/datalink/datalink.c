@@ -46,6 +46,12 @@
 #include "bacnet/datalink/dlmstp.h"
 #include <strings.h> /* for strcasecmp() */
 
+/* environment variables used for the command line tools */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 static enum {
     DATALINK_NONE = 0,
     DATALINK_ARCNET,
