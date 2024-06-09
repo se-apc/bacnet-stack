@@ -82,7 +82,7 @@ void datalink_set(char *datalink_string)
 bool datalink_init(char *ifname)
 {
     bool status = false;
-
+    fprintf(stderr, "DL INIT %s \r\n", ifname);
     switch (Datalink_Transport) {
         case DATALINK_NONE:
             status = true;
