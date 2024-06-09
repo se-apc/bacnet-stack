@@ -66,6 +66,7 @@ void datalink_set(char *datalink_string)
     } else if (strcasecmp("arcnet", datalink_string) == 0) {
         Datalink_Transport = DATALINK_ARCNET;
     } else if (strcasecmp("mstp", datalink_string) == 0) {
+        fprintf(stderr, "DL Set %s \r\n", datalink_string);
         Datalink_Transport = DATALINK_MSTP;
     } else if (strcasecmp("none", datalink_string) == 0) {
         Datalink_Transport = DATALINK_NONE;
@@ -93,6 +94,7 @@ bool datalink_init(char *ifname)
             status = bip6_init(ifname);
             break;
         case DATALINK_MSTP:
+            fprintf(stderr, "DL MSPT INIT %s \r\n", ifname);
             status = dlmstp_init(ifname);
             break;
         default:

@@ -239,6 +239,7 @@ uint16_t dlmstp_receive(
     struct timespec abstime;
 
     (void)max_pdu;
+
     /* see if there is a packet available, and a place
        to put the reply (if necessary) and process it */
     pthread_mutex_lock(&Receive_Packet_Mutex);
@@ -790,6 +791,7 @@ int main(int argc, char *argv[])
     /* forever task */
     for (;;) {
         pdu_len = dlmstp_receive(NULL, NULL, 0, UINT_MAX);
+        fprintf(stderr, "DLMSTP MAIN ######### \r\n");
         MSTP_Create_And_Send_Frame(
             &MSTP_Port, FRAME_TYPE_TEST_REQUEST, MSTP_Port.SourceAddress,
             MSTP_Port.This_Station, NULL, 0);

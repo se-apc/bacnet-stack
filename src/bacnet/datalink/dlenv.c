@@ -364,6 +364,7 @@ void dlenv_network_port_init(void)
     const uint32_t instance = 1;
     BACNET_IP_ADDRESS addr = { 0 };
     uint8_t prefix = 0;
+    fprintf(stderr, "DLENV PORT INIT ######### \r\n");
 #if BBMD_ENABLED
     uint8_t addr0, addr1, addr2, addr3;
 #endif
@@ -417,6 +418,7 @@ void dlenv_network_port_init(void)
 {
     uint32_t instance = 1;
     uint8_t mac[1] = { 0 };
+    fprintf(stderr, "DLENV MSTP PORT INIT ######### \r\n");
 
     Network_Port_Object_Instance_Number_Set(0, instance);
     Network_Port_Name_Set(instance, "MS/TP Port");
