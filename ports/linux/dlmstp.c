@@ -650,12 +650,13 @@ uint8_t dlmstp_max_master(void)
 /* RS485 Baud Rate 9600, 19200, 38400, 57600, 115200 */
 void dlmstp_set_baud_rate(uint32_t baud)
 {
-    fprintf(stderr, "TESTING DLMS %u \r\n", baud);
+    fprintf(stderr, "TESTING DLMSTP BAUD RATE SET %u \r\n", baud);
     RS485_Set_Baud_Rate(baud);
 }
 
 uint32_t dlmstp_baud_rate(void)
 {
+    fprintf(stderr, " ***** TESTING DLMS DLMSTP BAUD RATE  \r\n");
     return RS485_Get_Baud_Rate();
 }
 
@@ -695,7 +696,7 @@ bool dlmstp_init(char *ifname)
 {
     pthread_condattr_t attr;
     int rv = 0;
-
+    fprintf(stderr, "DLMSTP INIT ######### \r\n");
     pthread_condattr_init(&attr);
     if ((rv = pthread_condattr_setclock(&attr, CLOCK_MONOTONIC)) != 0) {
         fprintf(
