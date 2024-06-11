@@ -736,7 +736,7 @@ bool dlmstp_init(char *ifname)
         RS485_Set_Interface(ifname);
         debug_fprintf(stderr, "MS/TP Interface: %s\n", ifname);
     }
-    RS485_Initialize();
+    RS485_Initialize();  // ERROR given here
     MSTP_Port.InputBuffer = &RxBuffer[0];
     MSTP_Port.InputBufferSize = sizeof(RxBuffer);
     MSTP_Port.OutputBuffer = &TxBuffer[0];
