@@ -32,9 +32,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "bacnet/bacnet_stack_exports.h"
+#/* BACnet Stack defines - first */
 #include "bacnet/bacdef.h"
-#include "bacnet/bacenum.h"
+/* BACnet Stack API */
 #include "bacnet/apdu.h"
 
 #ifdef __cplusplus
@@ -49,7 +49,7 @@ extern "C" {
         BACNET_CONFIRMED_SERVICE_DATA * service_data);
     BACNET_STACK_EXPORT
     bool handler_cov_fsm(
-        void);
+        const bool reset);
     BACNET_STACK_EXPORT
     void handler_cov_task(
         void);

@@ -27,8 +27,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include "bacnet/config.h"
+/* BACnet Stack defines - first */
 #include "bacnet/bacdef.h"
+/* BACnet Stack API */
 #include "bacnet/bacerror.h"
 #include "bacnet/bacdcode.h"
 #include "bacnet/bacaddr.h"
@@ -593,7 +594,7 @@ void handler_cov_timer_seconds(uint32_t elapsed_seconds)
     }
 }
 
-bool handler_cov_fsm(void)
+bool handler_cov_fsm(const bool reset)
 {
     static int index = 0;
     BACNET_OBJECT_TYPE object_type = MAX_BACNET_OBJECT_TYPE;
@@ -609,6 +610,11 @@ bool handler_cov_fsm(void)
         COV_STATE_FREE,
         COV_STATE_SEND
     } cov_task_state = COV_STATE_IDLE;
+
+    if(reset) {
+      index = 0;
+      cov_task_state = COV_STATE_IDLE;
+    }
 
     switch (cov_task_state) {
         case COV_STATE_IDLE:
@@ -724,7 +730,7 @@ bool handler_cov_fsm(void)
 
 void handler_cov_task(void)
 {
-    handler_cov_fsm();
+    handler_cov_fsm(false);
 }
 
 static bool cov_subscribe(BACNET_ADDRESS *src,
@@ -743,10 +749,22 @@ static bool cov_subscribe(BACNET_ADDRESS *src,
         status = Device_Value_List_Supported(object_type);
         if (status) {
             status = cov_list_subscribe(src, cov_data, error_class, error_code);
+        } else if (cov_data->cancellationRequest) {
+            /* From BACnet Standard 135-2010-13.14.2
+               ...Cancellations that are issued for which no matching COV
+               context can be found shall succeed as if a context had
+               existed, returning 'Result(+)'. */
+            status = true;
         } else {
             *error_class = ERROR_CLASS_OBJECT;
             *error_code = ERROR_CODE_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
         }
+    } else if (cov_data->cancellationRequest) {
+        /* From BACnet Standard 135-2010-13.14.2
+            ...Cancellations that are issued for which no matching COV
+            context can be found shall succeed as if a context had
+            existed, returning 'Result(+)'. */
+        status = true;
     } else {
         *error_class = ERROR_CLASS_OBJECT;
         *error_code = ERROR_CODE_UNKNOWN_OBJECT;

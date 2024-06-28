@@ -36,7 +36,9 @@
 #include <stdio.h>
 #include <string.h>
 
+/* BACnet Stack defines - first */
 #include "bacnet/bacdef.h"
+/* BACnet Stack API */
 #include "bacnet/bacdcode.h"
 #include "bacnet/bacenum.h"
 #include "bacnet/bacapp.h"
@@ -46,12 +48,13 @@
 #include "bacnet/basic/services.h"
 /* me! */
 #include "bacnet/basic/object/iv.h"
+#include "bacnet/basic/sys/debug.h"
 
 #ifndef MAX_INTEGER_VALUES
 #define MAX_INTEGER_VALUES 1
 #endif
 
-#define PRINTF printf
+#define PRINTF debug_perror
 
 struct integer_object {
     bool Out_Of_Service : 1;
@@ -65,7 +68,7 @@ static const int Integer_Value_Properties_Required[] = { PROP_OBJECT_IDENTIFIER,
     PROP_OBJECT_NAME, PROP_OBJECT_TYPE, PROP_PRESENT_VALUE, PROP_STATUS_FLAGS,
     PROP_UNITS, -1 };
 
-static const int Integer_Value_Properties_Optional[] = { PROP_OUT_OF_SERVICE, 
+static const int Integer_Value_Properties_Optional[] = { PROP_OUT_OF_SERVICE,
     PROP_DESCRIPTION,
     -1 };
 
@@ -194,8 +197,15 @@ bool Integer_Value_Set(BACNET_OBJECT_LIST_INIT_T *pInit_data)
     if (!characterstring_init_ansi(&IV_Descr[i].Description, pInit_data->Object_Init_Values[i].Description)) {
       PRINTF("Fail to set Object description to \"%128s\"", pInit_data->Object_Init_Values[i].Description);
     }
-   }
 
+    if (pInit_data->Object_Init_Values[i].Units < UNITS_PROPRIETARY_RANGE_MAX2) {
+      Integer_Value[i].Units = pInit_data->Object_Init_Values[i].Units;
+    } else {
+      PRINTF("unit %u is out of range", pInit_data->Object_Init_Values[i].Units);
+      return false;
+    }
+
+   }
    IV_Max_Index = (int) pInit_data->length;
 
    return true;
@@ -320,7 +330,6 @@ bool Integer_Value_Description(
 
     return status;
 }
-
 
 /**
  * For a given object instance-number, returns the units property value
