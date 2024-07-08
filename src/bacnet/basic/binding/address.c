@@ -544,7 +544,10 @@ bool address_device_bind_request(uint32_t device_id,
         pMatch = &Address_Cache[index];
         if (((pMatch->Flags & BAC_ADDR_IN_USE) != 0) &&
             (pMatch->device_id == device_id)) {
+			//fprintf(stderr, "[%s %d]: addr in use did = %d bind req = '%d'...\r\n", __FILE__, __LINE__, device_id, 
+		//			(int) (pMatch->Flags & BAC_ADDR_BIND_REQ));
             if ((pMatch->Flags & BAC_ADDR_BIND_REQ) == 0) {
+			fprintf(stderr, "[%s %d]: !bind req fount --> true...\r\n", __FILE__, __LINE__);
                 /* Already bound */
                 found = true;
                 if (src) {
@@ -576,6 +579,7 @@ bool address_device_bind_request(uint32_t device_id,
         if ((pMatch->Flags & (BAC_ADDR_IN_USE | BAC_ADDR_RESERVED)) == 0) {
             /* In use and awaiting binding */
             pMatch->Flags = (uint8_t)(BAC_ADDR_IN_USE | BAC_ADDR_BIND_REQ);
+			fprintf(stderr, "[%s %d]: not there yet bind req did = %d...\r\n", __FILE__, __LINE__, device_id);
             pMatch->device_id = device_id;
             /* No point in leaving bind requests in for long haul */
             pMatch->TimeToLive = BAC_ADDR_SHORT_TIME;
@@ -632,6 +636,7 @@ void address_add_binding(
         pMatch = &Address_Cache[index];
         if (((pMatch->Flags & BAC_ADDR_IN_USE) != 0) &&
             (pMatch->device_id == device_id)) {
+			fprintf(stderr, "[%s %d]: adding address for did = %d...\r\n", __FILE__, __LINE__, device_id);
             bacnet_address_copy(&pMatch->address, src);
             pMatch->max_apdu = max_apdu;
             /* Clear bind request flag in case it was set */
