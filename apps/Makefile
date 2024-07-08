@@ -198,12 +198,12 @@ endif
 
 .EXPORT_ALL_VARIABLES:
 
-SUBDIRS = lib readprop writeprop readfile writefile reinit server dcc \
-	whohas whois iam ucov scov timesync epics readpropm readrange \
-	writepropm uptransfer getevent uevent abort error event ack-alarm \
-	server-client add-list-element remove-list-element create-object \
-	delete-object server-discover apdu \
-	writehostnport-ipv6
+#SUBDIRS = lib readprop writeprop readfile writefile reinit server dcc \
+#	whohas whois iam ucov scov timesync epics readpropm readrange \
+#	writepropm uptransfer getevent uevent abort error event ack-alarm \
+#	server-client add-list-element remove-list-element create-object \
+#	delete-object server-discover apdu \
+#	writehostnport-ipv6
 
 SUBDIRS = \
 	writehostnport-ipv6
