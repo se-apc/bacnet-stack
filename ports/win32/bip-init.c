@@ -33,6 +33,7 @@
  -------------------------------------------
 ####COPYRIGHTEND####*/
 
+#include "bacport.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h> /* for standard integer types uint8_t etc. */
@@ -43,7 +44,6 @@
 #include "bacnet/datalink/bip.h"
 #include "bacnet/basic/sys/debug.h"
 #include "bacnet/basic/bbmd/h_bbmd.h"
-#include "bacport.h"
 
 /* Windows sockets */
 static SOCKET BIP_Socket = INVALID_SOCKET;
