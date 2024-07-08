@@ -137,7 +137,7 @@ static void Init_Service_Handlers(void)
        to support dynamic device binding to us */
     apdu_set_unconfirmed_handler(SERVICE_UNCONFIRMED_WHO_IS, handler_who_is);
     /* handle i-am to support binding to other devices */
-    apdu_set_unconfirmed_handler(SERVICE_UNCONFIRMED_I_AM, handler_i_am_bind);
+    apdu_set_unconfirmed_handler(SERVICE_UNCONFIRMED_I_AM, handler_i_am_add);
     /* set the handler for all the services we don't implement
        It is required to send the proper reject message... */
     apdu_set_unrecognized_service_handler_handler(handler_unrecognized_service);
@@ -490,10 +490,13 @@ int main(int argc, char *argv[])
         if (!found) {
             found = address_bind_request(
                 Target_Device_Object_Instance, &max_apdu, &Target_Address);
+        pdu_len = datalink_receive(&src, &Rx_Buf[0], MAX_MPDU, timeout);
+	//if(pdu_len != 0)
+	  fprintf(stderr, "received %d bytes\r\n", pdu_len);
         }
         //fprintf(stderr, "[%s %d %s]: found = '%s'\r\n", __FILE__, __LINE__, __func__, found ? "true" : "false");
         if (found) {
-        fprintf(stderr, "[%s %d %s]: found = '%s'\r\n", __FILE__, __LINE__, __func__, found ? "true" : "false");
+        //fprintf(stderr, "[%s %d %s]: found = '%s'\r\n", __FILE__, __LINE__, __func__, found ? "true" : "false");
             if (Request_Invoke_ID == 0) {
                 uint8_t apdu[1024] = {0, };
                 BACNET_HOST_N_PORT hnp = {
@@ -560,6 +563,8 @@ Request_Invoke_ID = Send_Write_Property_Request_Data(Target_Device_Object_Instan
 
         /* returns 0 bytes on timeout */
         pdu_len = datalink_receive(&src, &Rx_Buf[0], MAX_MPDU, timeout);
+	//if(pdu_len != 0)
+	  fprintf(stderr, "received %d bytes\r\n", pdu_len);
 
         /* process */
         if (pdu_len) {
@@ -568,6 +573,7 @@ Request_Invoke_ID = Send_Write_Property_Request_Data(Target_Device_Object_Instan
 
         /* keep track of time for next check */
         last_seconds = current_seconds;
+	Sleep(777);
     }
     if (Error_Detected) {
         return 1;
