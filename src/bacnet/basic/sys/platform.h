@@ -37,6 +37,7 @@
 #define BACNET_STACK_DEPRECATED(message)
 #endif
 
+#include <string.h>
 #if defined(_MSC_VER)
 #ifndef strcasecmp
 #define strcasecmp _stricmp
