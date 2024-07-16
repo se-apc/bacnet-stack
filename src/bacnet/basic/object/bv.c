@@ -71,12 +71,15 @@ static binary_value_write_present_value_callback
     Binary_Value_Write_Present_Value_Callback;
 
 /* These three arrays are used by the ReadPropertyMultiple handler */
-static const int Binary_Value_Properties_Required[] = { PROP_OBJECT_IDENTIFIER,
-    PROP_OBJECT_NAME, PROP_OBJECT_TYPE, PROP_PRESENT_VALUE, PROP_STATUS_FLAGS,
-    PROP_EVENT_STATE, PROP_OUT_OF_SERVICE, -1 };
+static const int Binary_Value_Properties_Required[] = {
+    PROP_OBJECT_IDENTIFIER, PROP_OBJECT_NAME,
+    PROP_OBJECT_TYPE,       PROP_PRESENT_VALUE,
+    PROP_STATUS_FLAGS,      PROP_EVENT_STATE,
+    PROP_OUT_OF_SERVICE,    -1
+};
 
-static const int Binary_Value_Properties_Optional[] = { PROP_DESCRIPTION,
-    PROP_RELIABILITY, PROP_ACTIVE_TEXT, PROP_INACTIVE_TEXT,
+static const int Binary_Value_Properties_Optional[] = {
+    PROP_DESCRIPTION, PROP_RELIABILITY, PROP_ACTIVE_TEXT, PROP_INACTIVE_TEXT,
 #if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
     PROP_TIME_DELAY, PROP_NOTIFICATION_CLASS,
     PROP_ALARM_VALUE,
@@ -762,7 +765,7 @@ int Binary_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
     uint8_t *apdu = NULL;
     bool state = false;
     struct object_data *pObject;
-#if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
     int apdu_size = 0;
 #endif
 
@@ -777,7 +780,7 @@ int Binary_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
         return BACNET_STATUS_ERROR;
     }
     apdu = rpdata->application_data;
-#if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
     apdu_size = rpdata->application_data_len;
 #endif
     switch (rpdata->object_property) {
@@ -1744,7 +1747,9 @@ void Binary_Value_Intrinsic_Reporting(uint32_t object_instance)
         /* Time Stamp */
         event_data.timeStamp.tag = TIME_STAMP_DATETIME;
         if (event_data.notifyType != NOTIFY_ACK_NOTIFICATION) {
-            Device_getCurrentDateTime(&event_data.timeStamp.value.dateTime);
+            datetime_local(
+                &event_data.timeStamp.value.dateTime.date,
+                &event_data.timeStamp.value.dateTime.time, NULL, NULL);
             /* fill Event_Time_Stamps */
             switch (ToState) {
                 case EVENT_STATE_OFFNORMAL:
