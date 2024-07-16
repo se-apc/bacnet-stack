@@ -28,7 +28,10 @@
 /* me! */
 #include "bacnet/basic/object/bv.h"
 
-#define PRINTF debug_perror
+#include "bacnet/basic/sys/debug.h"
+#if !defined(PRINT)
+#define PRINT debug_perror
+#endif
 
 static const char *Default_Active_Text = "Active";
 static const char *Default_Inactive_Text = "Inactive";
@@ -44,7 +47,7 @@ struct object_data {
     const char *Active_Text;
     const char *Inactive_Text;
     BACNET_CHARACTER_STRING Description;
-#if (BINARY_VALUE_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
     uint32_t Time_Delay;
     uint32_t Notification_Class;
     unsigned Event_Enable:3;
@@ -74,14 +77,15 @@ static const int Binary_Value_Properties_Required[] = { PROP_OBJECT_IDENTIFIER,
 
 static const int Binary_Value_Properties_Optional[] = { PROP_DESCRIPTION,
     PROP_RELIABILITY, PROP_ACTIVE_TEXT, PROP_INACTIVE_TEXT,
-#if (BINARY_VALUE_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
     PROP_TIME_DELAY, PROP_NOTIFICATION_CLASS,
     PROP_ALARM_VALUE,
     PROP_EVENT_ENABLE, PROP_ACKED_TRANSITIONS,
     PROP_NOTIFY_TYPE, PROP_EVENT_TIME_STAMPS,
     PROP_EVENT_DETECTION_ENABLE,
 #endif
-    -1 };
+    -1
+};
 
 static const int Binary_Value_Properties_Proprietary[] = { -1 };
 
@@ -691,6 +695,55 @@ bool Binary_Value_Inactive_Text_Set(uint32_t object_instance, char *new_name)
     return status;
 }
 
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
+/**
+ * @brief Encode a EventTimeStamps property element
+ * @param object_instance [in] BACnet network port object instance number
+ * @param index [in] array index requested:
+ *    0 to N for individual array members
+ * @param apdu [out] Buffer in which the APDU contents are built, or NULL to
+ * return the length of buffer if it had been built
+ * @return The length of the apdu encoded or
+ *   BACNET_STATUS_ERROR for ERROR_CODE_INVALID_ARRAY_INDEX
+ */
+static int Binary_Value_Event_Time_Stamps_Encode(
+    uint32_t object_instance, BACNET_ARRAY_INDEX index, uint8_t *apdu)
+{
+    int apdu_len = 0, len = 0;
+    struct object_data *pObject = Binary_Value_Object(object_instance);
+
+    if (pObject) {
+        if (index < MAX_BACNET_EVENT_TRANSITION) {
+            len = encode_opening_tag(apdu, TIME_STAMP_DATETIME);
+            apdu_len += len;
+            if (apdu) {
+                apdu += len;
+            }
+            len = encode_application_date(
+                apdu, &pObject->Event_Time_Stamps[index].date);
+            apdu_len += len;
+            if (apdu) {
+                apdu += len;
+            }
+            len = encode_application_time(
+                apdu, &pObject->Event_Time_Stamps[index].time);
+            apdu_len += len;
+            if (apdu) {
+                apdu += len;
+            }
+            len = encode_closing_tag(apdu, TIME_STAMP_DATETIME);
+            apdu_len += len;
+        } else {
+            apdu_len = BACNET_STATUS_ERROR;
+        }
+    } else {
+        apdu_len = BACNET_STATUS_ERROR;
+    }
+
+    return apdu_len;
+}
+#endif
+
 /**
  * ReadProperty handler for this object.  For the given ReadProperty
  * data, the application_data is loaded or the error flags are set.
@@ -709,18 +762,24 @@ int Binary_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
     uint8_t *apdu = NULL;
     bool state = false;
     struct object_data *pObject;
+#if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
+    int apdu_size = 0;
+#endif
 
     if ((rpdata == NULL) || (rpdata->application_data == NULL) ||
         (rpdata->application_data_len == 0)) {
         return 0;
     }
     if(!(pObject = Binary_Value_Object(rpdata->object_instance))) {
-#if (!BINARY_VALUE_INTRINSIC_REPORTING)
+#if !(defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING))
         (void) pObject;
 #endif
         return BACNET_STATUS_ERROR;
     }
     apdu = rpdata->application_data;
+#if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
+    apdu_size = rpdata->application_data_len;
+#endif
     switch (rpdata->object_property) {
         case PROP_OBJECT_IDENTIFIER:
             apdu_len = encode_application_object_id(
@@ -786,7 +845,7 @@ int Binary_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
             apdu_len =
                 encode_application_character_string(&apdu[0], &char_string);
             break;
-#if (BINARY_INPUT_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
         case PROP_ALARM_VALUE:
             /* note: you need to look up the actual value */
             apdu_len = encode_application_enumerated(
@@ -837,49 +896,16 @@ int Binary_Value_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
             break;
 
         case PROP_EVENT_TIME_STAMPS:
-            /* Array element zero is the number of elements in the array */
-            if (rpdata->array_index == 0)
-                apdu_len = encode_application_unsigned(
-                    &apdu[0], MAX_BACNET_EVENT_TRANSITION);
-            /* if no index was specified, then try to encode the entire list */
-            /* into one packet. */
-            else if (rpdata->array_index == BACNET_ARRAY_ALL) {
-              unsigned i = 0;
-              int len = 0;
-
-              for (i = 0; i < MAX_BACNET_EVENT_TRANSITION; i++) {
-                len = encode_opening_tag(
-                    &apdu[apdu_len], TIME_STAMP_DATETIME);
-                len += encode_application_date(&apdu[apdu_len + len],
-                    &pObject->Event_Time_Stamps[i].date);
-                len += encode_application_time(&apdu[apdu_len + len],
-                    &pObject->Event_Time_Stamps[i].time);
-                len += encode_closing_tag(
-                    &apdu[apdu_len + len], TIME_STAMP_DATETIME);
-
-                /* add it if we have room */
-                if ((apdu_len + len) < MAX_APDU)
-                  apdu_len += len;
-                else {
-                  rpdata->error_code =
+            apdu_len = bacnet_array_encode(
+                rpdata->object_instance, rpdata->array_index,
+                Binary_Value_Event_Time_Stamps_Encode,
+                MAX_BACNET_EVENT_TRANSITION, apdu, apdu_size);
+            if (apdu_len == BACNET_STATUS_ABORT) {
+                rpdata->error_code =
                     ERROR_CODE_ABORT_SEGMENTATION_NOT_SUPPORTED;
-                  apdu_len = BACNET_STATUS_ABORT;
-                  break;
-                }
-              }
-            } else if (rpdata->array_index <= MAX_BACNET_EVENT_TRANSITION) {
-                apdu_len =
-                    encode_opening_tag(&apdu[apdu_len], TIME_STAMP_DATETIME);
-                apdu_len += encode_application_date(&apdu[apdu_len],
-                    &pObject->Event_Time_Stamps[rpdata->array_index].date);
-                apdu_len += encode_application_time(&apdu[apdu_len],
-                    &pObject->Event_Time_Stamps[rpdata->array_index].time);
-                apdu_len +=
-                    encode_closing_tag(&apdu[apdu_len], TIME_STAMP_DATETIME);
-            } else {
+            } else if (apdu_len == BACNET_STATUS_ERROR) {
                 rpdata->error_class = ERROR_CLASS_PROPERTY;
                 rpdata->error_code = ERROR_CODE_INVALID_ARRAY_INDEX;
-                apdu_len = BACNET_STATUS_ERROR;
             }
             break;
 #endif
@@ -981,7 +1007,7 @@ bool Binary_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             }
             break;
 #endif
-#if (BINARY_INPUT_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
         case PROP_TIME_DELAY:
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_UNSIGNED_INT);
@@ -1145,7 +1171,7 @@ uint32_t Binary_Value_Create(uint32_t object_instance)
     if (!pObject) {
         pObject = calloc(1, sizeof(struct object_data));
         if (pObject) {
-#if (BINARY_VALUE_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
             unsigned j;
 #endif
 
@@ -1159,7 +1185,7 @@ uint32_t Binary_Value_Create(uint32_t object_instance)
             pObject->Change_Of_Value = false;
             pObject->Write_Enabled = false;
             pObject->Polarity = false;
-#if (BINARY_VALUE_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
             pObject->Event_State = EVENT_STATE_NORMAL;
             pObject->Event_Detection_Enable = true;
             /* notification class not connected */
@@ -1295,7 +1321,7 @@ bool Binary_Value_Set(BACNET_OBJECT_LIST_INIT_T *pInit_data)
 unsigned Binary_Value_Event_State(uint32_t object_instance)
 {
     unsigned state = EVENT_STATE_NORMAL;
-#if !(BINARY_VALUE_INTRINSIC_REPORTING)
+#if !defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
   (void) object_instance;
 #else
     struct object_data *pObject = Binary_Value_Object(object_instance);
@@ -1308,7 +1334,7 @@ unsigned Binary_Value_Event_State(uint32_t object_instance)
     return state;
 }
 
-#if (BINARY_VALUE_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
 /**
  * For a given object instance-number, gets the event-detection-enable property value
  *
@@ -1319,7 +1345,7 @@ unsigned Binary_Value_Event_State(uint32_t object_instance)
 bool Binary_Value_Event_Detection_Enable(uint32_t object_instance)
 {
     bool retval = false;
-#if !(BINARY_VALUE_INTRINSIC_REPORTING)
+#if !(defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING))
     (void) object_instance;
 #else
     struct object_data *pObject = Binary_Value_Object(object_instance);
@@ -1342,7 +1368,7 @@ bool Binary_Value_Event_Detection_Enable(uint32_t object_instance)
 bool Binary_Value_Event_Detection_Enable_Set(uint32_t object_instance, bool value)
 {
     bool retval = false;
-#if !(BINARY_VALUE_INTRINSIC_REPORTING)
+#if !(defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING))
     (void) object_instance;
     (void) value;
 #else
@@ -1357,7 +1383,7 @@ bool Binary_Value_Event_Detection_Enable_Set(uint32_t object_instance, bool valu
     return retval;
 }
 
-#if (BINARY_INPUT_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING)
 /**
  * @brief Gets an object from the list using its index in the list
  * @param index - index of the object in the list
@@ -1602,7 +1628,7 @@ bool Binary_Value_Alarm_Value_Set(
 
 void Binary_Value_Intrinsic_Reporting(uint32_t object_instance)
 {
-#if !(BINARY_VALUE_INTRINSIC_REPORTING)
+#if !(defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING))
   (void) object_instance;
 #else
     BACNET_EVENT_NOTIFICATION_DATA event_data = { 0 };
@@ -1846,6 +1872,6 @@ void Binary_Value_Intrinsic_Reporting(uint32_t object_instance)
             }
         }
     }
-#endif /* (BINARY_VALUE_INTRINSIC_REPORTING) */
+#endif /* defined(INTRINSIC_REPORTING) && (BINARY_VALUE_INTRINSIC_REPORTING) */
 }
 

@@ -168,7 +168,7 @@ extern "C" {
     BACNET_STACK_EXPORT
     bool Binary_Input_Set(BACNET_OBJECT_LIST_INIT_T *pInit_data);
 
-#if (BINARY_INPUT_INTRINSIC_REPORTING)
+#if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
     BACNET_STACK_EXPORT
     bool Binary_Input_Event_Detection_Enable(
         uint32_t object_instance);
