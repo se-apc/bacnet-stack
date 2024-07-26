@@ -32,23 +32,21 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "bacnet/basic/binding/address.h"
+/* BACnet Stack defines - first */
 #include "bacnet/bacdef.h"
+/* BACnet Stack API */
 #include "bacnet/bacdcode.h"
-#include "bacnet/bacenum.h"
 #include "bacnet/bacapp.h"
 #include "bacnet/bacdest.h"
-#include "bacnet/basic/services.h"
-#include "bacnet/config.h"
 #include "bacnet/datetime.h"
-#include "bacnet/basic/object/device.h"
 #include "bacnet/event.h"
+#include "bacnet/wp.h"
+#include "bacnet/basic/object/device.h"
+#include "bacnet/basic/object/nc.h"
+#include "bacnet/basic/binding/address.h"
 #include "bacnet/basic/services.h"
 #include "bacnet/basic/sys/debug.h"
 #include "bacnet/basic/tsm/tsm.h"
-#include "bacnet/wp.h"
-#include "bacnet/basic/object/nc.h"
 #include "bacnet/datalink/datalink.h"
 
 #define PRINTF debug_perror
@@ -153,14 +151,15 @@ unsigned Notification_Class_Instance_To_Index(uint32_t object_instance)
 bool Notification_Class_Object_Name(
     uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
-    static char text_string[32] = ""; /* okay for single thread */
+    static char text[32] = ""; /* okay for single thread */
     unsigned int index;
     bool status = false;
 
     index = Notification_Class_Instance_To_Index(object_instance);
     if (index < MAX_NOTIFICATION_CLASSES) {
-        sprintf(text_string, "NOTIFICATION CLASS %lu", (unsigned long)index);
-        status = characterstring_init_ansi(object_name, text_string);
+        snprintf(text, sizeof(text), "NOTIFICATION CLASS %lu", 
+            (unsigned long)object_instance);
+        status = characterstring_init_ansi(object_name, text);
     }
 
     return status;
@@ -268,9 +267,10 @@ int Notification_Class_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
                   ERROR_CODE_ABORT_SEGMENTATION_NOT_SUPPORTED;
                 apdu_len = BACNET_STATUS_ABORT;
                 break;
-              }
-              /* size fits, therefore, encode all entry of Recipient_List */
-              for (idx = 0; idx < NC_MAX_RECIPIENTS; idx++) {
+            }
+            /* size fits, therefore, encode all entry of Recipient_List */
+            apdu_len = 0;
+            for (idx = 0; idx < NC_MAX_RECIPIENTS; idx++) {
                 BACNET_DESTINATION *Destination;
                 BACNET_RECIPIENT *Recipient;
                 Destination = &CurrentNotify->Recipient_List[idx];
@@ -451,7 +451,11 @@ bool Notification_Class_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             status = true;
             break;
 
+        case PROP_OBJECT_IDENTIFIER:
         case PROP_OBJECT_NAME:
+        case PROP_OBJECT_TYPE:
+        case PROP_DESCRIPTION:
+        case PROP_NOTIFICATION_CLASS:
             wp_data->error_class = ERROR_CLASS_PROPERTY;
             wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             break;
@@ -486,6 +490,83 @@ void Notification_Class_Get_Priorities(
         pPriorityArray[i] = CurrentNotify->Priority[i];
 }
 
+bool Notification_Class_Get_Recipient_List(
+    uint32_t Object_Instance, BACNET_DESTINATION *pRecipientList)
+{
+  uint32_t object_index = Notification_Class_Instance_To_Index(Object_Instance);
+
+  if (object_index < MAX_NOTIFICATION_CLASSES) {
+    NOTIFICATION_CLASS_INFO *CurrentNotify = &NC_Info[object_index];
+    int i;
+
+    for (i = 0; i < NC_MAX_RECIPIENTS; i++)
+      pRecipientList[i] = CurrentNotify->Recipient_List[i];
+  } else {
+    return false; /* unknown object */
+  }
+
+  return true;
+}
+
+bool Notification_Class_Set_Recipient_List(
+    uint32_t Object_Instance, BACNET_DESTINATION *pRecipientList)
+{
+  uint32_t object_index = Notification_Class_Instance_To_Index(Object_Instance);
+
+  if (object_index < MAX_NOTIFICATION_CLASSES) {
+    NOTIFICATION_CLASS_INFO *CurrentNotify = &NC_Info[object_index];
+    int i;
+
+    for (i = 0; i < NC_MAX_RECIPIENTS; i++)
+      CurrentNotify->Recipient_List[i] = pRecipientList[i];
+  } else {
+    return false; /* unknown object */
+  }
+
+  return true;
+}
+
+void Notification_Class_Set_Priorities(
+    uint32_t Object_Instance, uint32_t *pPriorityArray)
+{
+  uint32_t object_index = Notification_Class_Instance_To_Index(Object_Instance);
+
+  if (object_index < MAX_NOTIFICATION_CLASSES) {
+    NOTIFICATION_CLASS_INFO *CurrentNotify = &NC_Info[object_index];
+    int i;
+
+    for (i = 0; i < 3; i++)
+      if (pPriorityArray[i] <= 255)
+        CurrentNotify->Priority[i] = pPriorityArray[i];
+  }
+}
+
+void Notification_Class_Get_Ack_Required(
+    uint32_t Object_Instance, uint8_t *pAckRequired)
+{
+    uint32_t object_index = Notification_Class_Instance_To_Index(Object_Instance);
+
+    if (object_index < MAX_NOTIFICATION_CLASSES) {
+      NOTIFICATION_CLASS_INFO *CurrentNotify = &NC_Info[object_index];
+      *pAckRequired = CurrentNotify->Ack_Required;
+    } else {
+        *pAckRequired = 0;
+        return; /* unknown object */
+    }
+}
+
+void Notification_Class_Set_Ack_Required(
+    uint32_t Object_Instance, uint8_t Ack_Required)
+{
+    uint32_t object_index = Notification_Class_Instance_To_Index(Object_Instance);
+
+    if (object_index < MAX_NOTIFICATION_CLASSES) {
+        NOTIFICATION_CLASS_INFO *CurrentNotify = &NC_Info[object_index];
+        CurrentNotify->Ack_Required = Ack_Required;
+    }
+}
+
+
 static bool IsRecipientActive(
     BACNET_DESTINATION *pBacDest, uint8_t EventToState)
 {
@@ -496,20 +577,20 @@ static bool IsRecipientActive(
         case EVENT_STATE_OFFNORMAL:
         case EVENT_STATE_HIGH_LIMIT:
         case EVENT_STATE_LOW_LIMIT:
-            if (bitstring_bit(
+            if (!bitstring_bit(
                     &pBacDest->Transitions, TRANSITION_TO_OFFNORMAL)) {
                 return false;
             }
             break;
 
         case EVENT_STATE_FAULT:
-            if (bitstring_bit(&pBacDest->Transitions, TRANSITION_TO_FAULT)) {
+            if (!bitstring_bit(&pBacDest->Transitions, TRANSITION_TO_FAULT)) {
                 return false;
             }
             break;
 
         case EVENT_STATE_NORMAL:
-            if (bitstring_bit(&pBacDest->Transitions, TRANSITION_TO_NORMAL)) {
+            if (!bitstring_bit(&pBacDest->Transitions, TRANSITION_TO_NORMAL)) {
                 return false;
             }
             break;
@@ -526,12 +607,14 @@ static bool IsRecipientActive(
         return false;
     }
     /* valid FromTime */
-    if (datetime_compare_time(&DateTime.time, &pBacDest->FromTime) < 0)
+    if (datetime_compare_time(&DateTime.time, &pBacDest->FromTime) < 0) {
         return false;
+    }
 
     /* valid ToTime */
-    if (datetime_compare_time(&pBacDest->ToTime, &DateTime.time) < 0)
+    if (datetime_compare_time(&pBacDest->ToTime, &DateTime.time) < 0) {
         return false;
+    }
 
     return true;
 }
@@ -708,8 +791,7 @@ void Notification_Class_find_recipient(void)
  * the BACnetLIST all of the specified elements, or to neither add nor
  * update any elements at all.
  */
-int Notification_Class_Add_List_Element(
-    BACNET_LIST_ELEMENT_DATA * list_element)
+int Notification_Class_Add_List_Element(BACNET_LIST_ELEMENT_DATA *list_element)
 {
     NOTIFICATION_CLASS_INFO *notification = NULL;
     BACNET_DESTINATION recipient_list[NC_MAX_RECIPIENTS] = { 0 };
@@ -759,8 +841,8 @@ int Notification_Class_Add_List_Element(
     application_data = list_element->application_data;
     application_data_len = list_element->application_data_len;
     while (application_data_len > 0) {
-        len = bacnet_destination_decode(application_data,
-            application_data_len, &recipient_list[index]);
+        len = bacnet_destination_decode(
+            application_data, application_data_len, &recipient_list[index]);
         if (len > 0) {
             new_element_count++;
             application_data_len -= len;
@@ -797,7 +879,7 @@ int Notification_Class_Add_List_Element(
             same_element_count++;
         } else {
             added_element_count++;
-            if ((added_element_count+element_count) > NC_MAX_RECIPIENTS) {
+            if ((added_element_count + element_count) > NC_MAX_RECIPIENTS) {
                 list_element->first_failed_element_number = 1 + i;
                 list_element->error_class = ERROR_CLASS_RESOURCES;
                 list_element->error_code =
@@ -866,7 +948,7 @@ int Notification_Class_Add_List_Element(
  * a 'Result(-)' response primitive shall be issued.
  */
 int Notification_Class_Remove_List_Element(
-    BACNET_LIST_ELEMENT_DATA * list_element)
+    BACNET_LIST_ELEMENT_DATA *list_element)
 {
     NOTIFICATION_CLASS_INFO *notification = NULL;
     uint32_t notify_index = 0;
@@ -915,8 +997,8 @@ int Notification_Class_Remove_List_Element(
     application_data = list_element->application_data;
     application_data_len = list_element->application_data_len;
     while (application_data_len > 0) {
-        len = bacnet_destination_decode(application_data,
-            application_data_len, &recipient_list[index]);
+        len = bacnet_destination_decode(
+            application_data, application_data_len, &recipient_list[index]);
         if (len > 0) {
             remove_element_count++;
             application_data_len -= len;
