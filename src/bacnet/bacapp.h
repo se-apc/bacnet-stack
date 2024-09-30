@@ -15,6 +15,7 @@
 /* BACnet Stack defines - first */
 #include "bacnet/bacdef.h"
 /* BACnet Stack API */
+#include "bacnet/access_rule.h"
 #include "bacnet/bacaction.h"
 #include "bacnet/bacdest.h"
 #include "bacnet/bacint.h"

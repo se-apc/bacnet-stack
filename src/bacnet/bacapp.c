@@ -17,6 +17,7 @@
 #include <wchar.h>
 #include <wctype.h>
 #endif
+#include "bacnet/access_rule.h"
 #include "bacnet/bacenum.h"
 #include "bacnet/bacdcode.h"
 #include "bacnet/bacint.h"
@@ -934,6 +935,7 @@ int bacapp_encode_context_data_value(
             case BACNET_APPLICATION_TAG_ACTION_COMMAND:
             case BACNET_APPLICATION_TAG_SCALE:
             case BACNET_APPLICATION_TAG_SHED_LEVEL:
+            case BACNET_APPLICATION_TAG_ACCESS_RULE:
                 /* complex data is enclosed in open/close tags */
                 len = encode_opening_tag(apdu, context_tag_number);
                 apdu_len += len;
@@ -1309,6 +1311,10 @@ int bacapp_known_property_tag(
         case PROP_BBMD_FOREIGN_DEVICE_TABLE:
             /* BACnetFDTEntry */
             return BACNET_APPLICATION_TAG_FDT_ENTRY;
+        case PROP_POSITIVE_ACCESS_RULES:
+        case PROP_NEGATIVE_ACCESS_RULES:
+            /* BACnetAccessRule */
+            return BACNET_APPLICATION_TAG_ACCESS_RULE;
 
         default:
             return -1;
