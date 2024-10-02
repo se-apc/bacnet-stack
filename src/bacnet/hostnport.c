@@ -143,6 +143,11 @@ int host_n_port_decode(uint8_t *apdu,
     BACNET_TAG tag = { 0 };
     BACNET_UNSIGNED_INTEGER unsigned_value = 0;
 
+    fprintf(stderr, "### HOST_N_PORT_DECODE *apdu: %s\n", apdu);
+    fprintf(stderr, "### HOST_N_PORT_DECODE apdu_size: %d\n", apdu_size);
+    fprintf(stderr, "### HOST_N_PORT_DECODE *error_code: %s\n", error_code);
+    fprintf(stderr, "### HOST_N_PORT_DECODE *address: %s\n", address);
+
     /* default reject code */
     if (error_code) {
         *error_code = ERROR_CODE_REJECT_MISSING_REQUIRED_PARAMETER;
@@ -187,7 +192,8 @@ int host_n_port_decode(uint8_t *apdu,
         }
         apdu_len += len;
     } else if (tag.context && (tag.number == 2)) {
-        // CHOICE - name [2] CharacterString DC
+        fprintf("entering CHOICE - name [2] CharacterString\n");
+        fprintf(stderr, "### HOST_N_PORT_DECODE tag.context: %d\n", tag.context);
         if (address) {
             address->host_ip_address = false;
             address->host_name = true;
@@ -195,6 +201,8 @@ int host_n_port_decode(uint8_t *apdu,
         }
         len = bacnet_character_string_decode(&apdu[apdu_len],
             apdu_size - apdu_len, tag.len_value_type, char_string);
+        fprintf(stderr, "### HOST_N_PORT_DECODE len: %d\n", len);
+
         if (len == 0) {
             if (error_code) {
                 *error_code = ERROR_CODE_REJECT_BUFFER_OVERFLOW;
