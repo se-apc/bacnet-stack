@@ -187,6 +187,7 @@ int host_n_port_decode(uint8_t *apdu,
         }
         apdu_len += len;
     } else if (tag.context && (tag.number == 2)) {
+        // CHOICE - name [2] CharacterString DC
         if (address) {
             address->host_ip_address = false;
             address->host_name = true;
