@@ -239,6 +239,9 @@ int host_n_port_decode(
 {
     int apdu_len = 0, len = 0;
     BACNET_UNSIGNED_INTEGER unsigned_value = 0;
+    fprintf(stderr, "### host_n_port_decode *apdu=%p apdu_size=%u\n", apdu, apdu_size);
+    fprintf(stderr, "### host_n_port_decode *error_code=%p\n", error_code);
+    fprintf(stderr, "### host_n_port_decode *address=%p\n", address);
 
     /* default reject code */
     if (error_code) {
@@ -250,6 +253,7 @@ int host_n_port_decode(
         if (error_code) {
             *error_code = ERROR_CODE_REJECT_INVALID_TAG;
         }
+        fprintf(stderr, "### host[0] host_n_port_decode len=%d\n", len);
         return BACNET_STATUS_REJECT;
     }
     apdu_len += len;
@@ -274,6 +278,7 @@ int host_n_port_decode(
     len = bacnet_unsigned_context_decode(
         &apdu[apdu_len], apdu_size - apdu_len, 1, &unsigned_value);
     if (len > 0) {
+        fprintf(stderr, "### host[1] host_n_port_decode len=%d\n", len);
         if (unsigned_value <= UINT16_MAX) {
             if (address) {
                 address->port = unsigned_value;
@@ -285,6 +290,7 @@ int host_n_port_decode(
             return BACNET_STATUS_REJECT;
         }
     } else {
+        fprintf(stderr, "### not host port\n");
         if (error_code) {
             if (len == 0) {
                 *error_code = ERROR_CODE_REJECT_INVALID_TAG;
@@ -295,7 +301,7 @@ int host_n_port_decode(
         return BACNET_STATUS_REJECT;
     }
     apdu_len += len;
-
+    fprintf(stderr, "### host n port exit host_n_port_decode\n");
     return apdu_len;
 }
 
