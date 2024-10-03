@@ -143,7 +143,7 @@ int host_n_port_address_decode(
     BACNET_CHARACTER_STRING *char_string = NULL;
     BACNET_TAG tag = { 0 };
 
-    fprint(stderr, "#### host_n_port_address_decode *apdu=%p apdu_size=%u\n", apdu, apdu_size);
+    fprintf(stderr, "#### host_n_port_address_decode *apdu=%p apdu_size=%u\n", apdu, apdu_size);
     fprintf(stderr, "### host_n_port_address_decode *error_code=%p\n", error_code);
     fprintf(stderr, "### host_n_port_address_decode *address=%p\n", address);
     /* default reject code */
