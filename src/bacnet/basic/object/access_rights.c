@@ -290,6 +290,14 @@ bool Access_Rights_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
     BACNET_APPLICATION_DATA_VALUE value = { 0 };
     unsigned object_index = 0;
 
+    /*  only array properties can have array options */
+    is_array = property_list_bacnet_array_member(
+        wp_data->object_type, wp_data->object_property);
+    if (!is_array && (wp_data->array_index != BACNET_ARRAY_ALL)) {
+        wp_data->error_class = ERROR_CLASS_PROPERTY;
+        wp_data->error_code = ERROR_CODE_PROPERTY_IS_NOT_AN_ARRAY;
+        return false;
+    }
     /* decode the some of the request */
     len = bacapp_decode_application_data(
         wp_data->application_data, wp_data->application_data_len, &value);
