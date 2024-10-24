@@ -1,53 +1,27 @@
-/*####COPYRIGHTBEGIN####
- -------------------------------------------
- Copyright (C) 2007 Steve Karg
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to:
- The Free Software Foundation, Inc.
- 59 Temple Place - Suite 330
- Boston, MA  02111-1307
- USA.
-
- As a special exception, if other files instantiate templates or
- use macros or inline functions from this file, or you compile
- this file and link it with other works to produce a work based
- on this file, this file does not by itself cause the resulting
- work to be covered by the GNU General Public License. However
- the source code for this file must still be made available in
- accordance with section (3) of the GNU General Public License.
-
- This exception does not invalidate any other reasons why a work
- based on this file might be covered by the GNU General Public
- License.
- -------------------------------------------
-####COPYRIGHTEND####*/
+/**************************************************************************
+ *
+ * Copyright (C) 2007 Steve Karg
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later WITH GCC-exception-2.0
+ *
+ *********************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+/* BACnet Stack defines - first */
 #include "bacnet/bacdef.h"
+/* BACnet Stack API */
 #include "bacnet/datalink/mstpdef.h"
 #include "bacnet/datalink/dlmstp.h"
-#include "rs485.h"
 #include "bacnet/datalink/crc.h"
 #include "bacnet/npdu.h"
-#include "bacnet/bits.h"
-#include "bacnet/bytes.h"
 #include "bacnet/bacaddr.h"
 /* special optimization - I-Am response in this module */
 #include "bacnet/basic/services.h"
 #include "bacnet/basic/tsm/tsm.h"
+/* port specific */
+#include "rs485.h"
 
 /* This file has been customized for use with small microprocessors */
 /* Assumptions:
@@ -252,7 +226,7 @@ static void MSTP_Send_Frame(
     uint8_t frame_type, /* type of frame to send - see defines */
     uint8_t destination, /* destination address */
     uint8_t source, /* source address */
-    uint8_t *pdu, /* any data to be sent - may be null */
+    const uint8_t *pdu, /* any data to be sent - may be null */
     uint16_t pdu_len)
 { /* number of bytes of data (up to 501) */
     uint8_t crc8 = 0xFF; /* used to calculate the crc value */
@@ -661,7 +635,7 @@ static bool MSTP_Master_Node_FSM(void)
             if (TransmitPacketLen) {
                 MSTP_Send_Frame(FRAME_TYPE_BACNET_DATA_NOT_EXPECTING_REPLY,
                     MSTP_BROADCAST_ADDRESS, This_Station,
-                    (uint8_t *)&TransmitPacket[0], TransmitPacketLen);
+                    &TransmitPacket[0], TransmitPacketLen);
                 FrameCount++;
             } else {
                 /* NothingToSend */
@@ -985,7 +959,7 @@ static bool MSTP_Master_Node_FSM(void)
                 /* Note: optimized such that we are never a client */
                 MSTP_Send_Frame(FRAME_TYPE_BACNET_DATA_NOT_EXPECTING_REPLY,
                     TransmitPacketDest, This_Station,
-                    (uint8_t *)&TransmitPacket[0], TransmitPacketLen);
+                    &TransmitPacket[0], TransmitPacketLen);
                 MSTP_Flag.TransmitPacketPending = false;
                 Master_State = MSTP_MASTER_STATE_IDLE;
             } else {
