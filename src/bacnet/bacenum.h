@@ -1608,7 +1608,11 @@ typedef enum {
     /* BACnetScale */
     BACNET_APPLICATION_TAG_SCALE,
     /* BACnetShedLevel */
-    BACNET_APPLICATION_TAG_SHED_LEVEL
+    BACNET_APPLICATION_TAG_SHED_LEVEL,
+    /* BACnetAccessRule */
+    BACNET_APPLICATION_TAG_ACCESS_RULE,
+    /* BACnetChannelValue */
+    BACNET_APPLICATION_TAG_CHANNEL_VALUE
 } BACNET_APPLICATION_TAG;
 
 /* note: these are not the real values, */

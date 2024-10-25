@@ -280,6 +280,8 @@ add_library(${PROJECT_NAME}
   src/bacnet/bactext.h
   src/bacnet/bactimevalue.c
   src/bacnet/bactimevalue.h
+  src/bacnet/channel_value.c
+  src/bacnet/channel_value.h
   src/bacnet/dailyschedule.c
   src/bacnet/dailyschedule.h
   src/bacnet/weeklyschedule.c
@@ -449,6 +451,8 @@ add_library(${PROJECT_NAME}
   src/bacnet/basic/service/h_wp.h
   src/bacnet/basic/service/h_wpm.c
   src/bacnet/basic/service/h_wpm.h
+  src/bacnet/basic/service/h_write_group.c
+  src/bacnet/basic/service/h_write_group.h
   src/bacnet/basic/service/s_abort.c
   src/bacnet/basic/service/s_abort.h
   src/bacnet/basic/service/s_ack_alarm.c
@@ -505,6 +509,8 @@ add_library(${PROJECT_NAME}
   src/bacnet/basic/service/s_wp.h
   src/bacnet/basic/service/s_wpm.c
   src/bacnet/basic/service/s_wpm.h
+  src/bacnet/basic/service/s_write_group.c
+  src/bacnet/basic/service/s_write_group.h
   src/bacnet/basic/services.h
   src/bacnet/basic/sys/bigend.c
   src/bacnet/basic/sys/bigend.h
@@ -625,6 +631,8 @@ add_library(${PROJECT_NAME}
   src/bacnet/wp.h
   src/bacnet/wpm.c
   src/bacnet/wpm.h
+  src/bacnet/write_group.c
+  src/bacnet/write_group.h
   $<$<BOOL:${UCI}>:src/bacnet/basic/ucix/ucix.c>
   $<$<BOOL:${UCI}>:src/bacnet/basic/ucix/ucix.h>)
 target_sources(
@@ -1008,6 +1016,9 @@ if(BACNET_STACK_BUILD_APPS)
 
   add_executable(writefile apps/writefile/main.c)
   target_link_libraries(writefile PRIVATE ${PROJECT_NAME})
+
+  add_executable(writegroup apps/writegroup/main.c)
+  target_link_libraries(writegroup PRIVATE ${PROJECT_NAME})
 
   add_executable(writeprop apps/writeprop/main.c)
   target_link_libraries(writeprop PRIVATE ${PROJECT_NAME})

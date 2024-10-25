@@ -966,6 +966,7 @@ int Channel_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
     bool state = false;
     int apdu_size = 0;
     uint8_t *apdu = NULL;
+    bool is_array;
 
     if ((rpdata == NULL) || (rpdata->application_data == NULL) ||
         (rpdata->application_data_len == 0)) {
@@ -1229,7 +1230,6 @@ bool Channel_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
     bool status = false; /* return value */
     int len = 0;
     BACNET_APPLICATION_DATA_VALUE value = { 0 };
-
     /* decode the first value of the request */
     len = bacapp_decode_known_property(
         wp_data->application_data, wp_data->application_data_len, &value,
