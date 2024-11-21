@@ -103,7 +103,7 @@ void bip6_set_interface(char *ifname)
             PRINTF("BIP6: found interface: %s\n", ifa_tmp->ifa_name);
         }
         if ((ifa_tmp->ifa_addr) && (ifa_tmp->ifa_addr->sa_family == AF_INET6) &&
-            (strcasecmp(ifa_tmp->ifa_name, ifname) == 0)) {
+            (bacnet_stricmp(ifa_tmp->ifa_name, ifname) == 0)) {
             sin = (struct sockaddr_in6 *)ifa_tmp->ifa_addr;
             bvlc6_address_set(&BIP6_Addr, ntohs(sin->sin6_addr.s6_addr16[0]),
                 ntohs(sin->sin6_addr.s6_addr16[1]),
