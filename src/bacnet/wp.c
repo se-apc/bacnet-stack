@@ -310,7 +310,7 @@ bool write_property_type_valid(
 {
     /* assume success */
     bool valid = true;
-    fprintf(stderr, "## h_wpm write_property_type_valid\n");
+
     if (value && (value->tag != expected_tag)) {
         valid = false;
         if (wp_data) {
