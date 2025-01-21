@@ -76,11 +76,12 @@ static int write_property_multiple_decode(
                             (unsigned long)wp_data->object_property,
                             (unsigned long)wp_data->priority,
                             (long)wp_data->array_index);
-                        fprintf(stderr, " h_wpm write_property_multiple_decode wp_data->error_class=%d\n", wp_data->error_class);
-                        fprintf(stderr, " h_wpm write_property_multiple_decode wp_data->error_code=%d\n", wp_data->error_code);
+
                         if (device_write_property) {
                             if (device_write_property(wp_data) == false) {
                                 fprintf(stderr, " h_wpm ERROR_CODE_INVALID_TAG\n");
+                                fprintf(stderr, " h_wpm write_property_multiple_decode wp_data->error_class=%d\n", wp_data->error_class);
+                                fprintf(stderr, " h_wpm write_property_multiple_decode wp_data->error_code=%d\n", wp_data->error_code);
                                 /* Workaround BTL Specified Test 9.23.2.X5 */
                                 if ((wp_data->error_class ==
                                      ERROR_CLASS_PROPERTY) &&
