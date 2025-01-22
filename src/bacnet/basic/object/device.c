@@ -1530,6 +1530,7 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
             apdu_len = BACNET_STATUS_ERROR;
             break;
     }
+    fprintf(stderr, "Device_Read_Property_Local: apdu_len=%d\n", apdu_len);
     /*  only array properties can have array options */
     if ((apdu_len >= 0) && (rpdata->object_property != PROP_OBJECT_LIST) &&
         (rpdata->array_index != BACNET_ARRAY_ALL)) {
@@ -2008,6 +2009,7 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
         }
     } else {
+        fprintf(stderr, "Device_Write_Property: Object not found!\n");
         wp_data->error_class = ERROR_CLASS_OBJECT;
         wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
     }

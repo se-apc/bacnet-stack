@@ -979,8 +979,8 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                         wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
                     } else {
                         fprintf(stderr, "### present value set failed\n");
-                        wp_data->error_class = ERROR_CLASS_PROPERTY;
-                        wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
+                       // wp_data->error_class = ERROR_CLASS_PROPERTY;
+                      //  wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
                     }
                 } else {
                     wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -1017,8 +1017,8 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                         wp_data->object_instance, value.type.Real);
                 } else {
                     status = false;
-                    wp_data->error_class = ERROR_CLASS_PROPERTY;
-                    wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
+                   // wp_data->error_class = ERROR_CLASS_PROPERTY;
+                   // wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
                 }
             }
             break;
