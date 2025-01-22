@@ -2007,8 +2007,8 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             }
         } else {
             fprintf(stderr, "Device_Write_Property: Object instance unknown\n");
-            wp_data->error_class = ERROR_CLASS_OBJECT;
-            wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
+            wp_data->error_class = ERROR_CLASS_PROPERTY;
+            wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
         }
     } else {
         fprintf(stderr, "Device_Write_Property: Object not found!\n");
