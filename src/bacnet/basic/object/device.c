@@ -2006,6 +2006,7 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                 wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             }
         } else {
+            fprintf(stderr, "Device_Write_Property: Object instance unknown\n");
             wp_data->error_class = ERROR_CLASS_OBJECT;
             wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
         }
@@ -2014,7 +2015,7 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         wp_data->error_class = ERROR_CLASS_OBJECT;
         wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
     }
-
+    fprintf(stderr, "Device_Write_Property: status=%d\n", status);
     return (status);
 }
 

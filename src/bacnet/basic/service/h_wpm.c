@@ -85,7 +85,7 @@ static int write_property_multiple_decode(
                                     (wp_data->error_code ==
                                      ERROR_CODE_INVALID_DATA_TYPE)) {
                                     fprintf(stderr, " h_wpm ERROR_CODE_INVALID_TAG inside if\n");
-                                    wp_data->error_class = ERROR_CLASS_SERVICES;
+                                    wp_data->error_class = ERROR_CLASS_PROPERTY;
                                     wp_data->error_code =
                                         ERROR_CODE_INVALID_DATA_TYPE;
                                 }
