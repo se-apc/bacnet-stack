@@ -1119,7 +1119,7 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             }
             break;
     }
-
+    fprintf(stderr, "AV status %d\n", status);
     return status;
 }
 

@@ -50,7 +50,7 @@ static int write_property_multiple_decode(
     int len = 0;
     int offset = 0;
     uint8_t tag_number = 0;
-
+    fprintf(stderr, " h_wpm write_property_multiple_decode\n");
     /* decode service request */
     do {
         /* decode Object Identifier */
