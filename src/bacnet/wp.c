@@ -310,10 +310,11 @@ bool write_property_type_valid(
 {
     /* assume success */
     bool valid = true;
-
+    fprintf(stderr, "## write_property_type_valid\n");
     if (value && (value->tag != expected_tag)) {
         valid = false;
         if (wp_data) {
+            fprintf(stderr, "## write_property_type_valid: error\n");
             wp_data->error_class = ERROR_CLASS_PROPERTY;
             wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
         }
