@@ -50,7 +50,7 @@ static int write_property_multiple_decode(
     int len = 0;
     int offset = 0;
     uint8_t tag_number = 0;
-    fprintf(stderr, " h_wpm write_property_multiple_decode\n");
+
     /* decode service request */
     do {
         /* decode Object Identifier */
@@ -76,7 +76,6 @@ static int write_property_multiple_decode(
                             (unsigned long)wp_data->object_property,
                             (unsigned long)wp_data->priority,
                             (long)wp_data->array_index);
-
                         if (device_write_property) {
                             if (device_write_property(wp_data) == false) {
                                 /* Workaround BTL Specified Test 9.23.2.X5 */
@@ -84,7 +83,6 @@ static int write_property_multiple_decode(
                                      ERROR_CLASS_PROPERTY) &&
                                     (wp_data->error_code ==
                                      ERROR_CODE_INVALID_DATA_TYPE)) {
-                                    fprintf(stderr, " h_wpm ERROR_CODE_INVALID_TAG inside if\n");
                                     wp_data->error_class = ERROR_CLASS_PROPERTY;
                                     wp_data->error_code =
                                         ERROR_CODE_INVALID_DATA_TYPE;

@@ -929,7 +929,6 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
     /* decode the some of the request */
     len = bacapp_decode_application_data(
         wp_data->application_data, wp_data->application_data_len, &value);
-    fprintf(stderr, "## Analog value len %d\n", len);
     /* FIXME: len < application_data_len: more data? */
     if (len < 0) {
         /* error while decoding - a value larger than we can handle */
@@ -951,15 +950,11 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
         return false;
     }
-
-    fprintf(stderr, "AV wp-data_>error_class %d\n", wp_data->error_class);
-    fprintf(stderr, "AV wp-data_>error_code %d\n", wp_data->error_code);
     switch (wp_data->object_property) {
         case PROP_PRESENT_VALUE:
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_REAL);
             if (status) {
-                fprintf(stderr, "## Analog value status %d\n", status);
                 /* Command priority 6 is reserved for use by Minimum On/Off
                    algorithm and may not be used for other purposes in any
                    object. */
@@ -981,24 +976,17 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                         wp_data->error_class = ERROR_CLASS_PROPERTY;
                         wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
                     } else {
-                      //  fprintf(stderr, "### present value set failed\n");
                         wp_data->error_class = ERROR_CLASS_PROPERTY;
                         wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
                     }
                 } else {
-              //      wp_data->error_class = ERROR_CLASS_PROPERTY;
-               //     wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
                     status = false;
                 }
             } else {
                 status = false;
                 wp_data->error_class = ERROR_CLASS_PROPERTY;
                 wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
-                fprintf(stderr, "## Analog value status %d\n", status);
             }
-
-            fprintf(stderr, "AV wp-data_>error_class %d\n", wp_data->error_class);
-            fprintf(stderr, "AV wp-data_>error_code %d\n", wp_data->error_code);
             break;
         case PROP_OUT_OF_SERVICE:
             status = write_property_type_valid(
@@ -1126,9 +1114,7 @@ bool Analog_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             }
             break;
     }
-    fprintf(stderr, "AV status %d\n", status);
-    fprintf(stderr, "AV wp-data_>error_class %d\n", wp_data->error_class);
-    fprintf(stderr, "AV wp-data_>error_code %d\n", wp_data->error_code);
+
     return status;
 }
 

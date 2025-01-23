@@ -1265,7 +1265,6 @@ bool Analog_Input_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         case PROP_PRESENT_VALUE:
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_REAL);
-            fprintf(stderr, "AI Present_Value Set status %d\n", status);
             if (status) {
                 if (pObject->Out_Of_Service == true) {
                     Analog_Input_Present_Value_Set(

@@ -1335,7 +1335,7 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
     uint8_t *apdu = NULL;
     struct object_functions *pObject = NULL;
     uint16_t apdu_max = 0;
-    fprintf(stderr, "Device_Read_Property_Local\n");
+
     if ((rpdata == NULL) || (rpdata->application_data == NULL) ||
         (rpdata->application_data_len == 0)) {
         return 0;
@@ -1530,7 +1530,6 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
             apdu_len = BACNET_STATUS_ERROR;
             break;
     }
-    fprintf(stderr, "Device_Read_Property_Local: apdu_len=%d\n", apdu_len);
     /*  only array properties can have array options */
     if ((apdu_len >= 0) && (rpdata->object_property != PROP_OBJECT_LIST) &&
         (rpdata->array_index != BACNET_ARRAY_ALL)) {
@@ -1976,7 +1975,6 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
     bool status = false; /* Ever the pessimist! */
     struct object_functions *pObject = NULL;
 
-    fprintf(stderr, "Device write prop\n");
     /* initialize the default return values */
     wp_data->error_class = ERROR_CLASS_OBJECT;
     wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
@@ -2006,16 +2004,14 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                 wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             }
         } else {
-            fprintf(stderr, "Device_Write_Property: Object instance unknown\n");
             wp_data->error_class = ERROR_CLASS_PROPERTY;
             wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
         }
     } else {
-        fprintf(stderr, "Device_Write_Property: Object not found!\n");
         wp_data->error_class = ERROR_CLASS_OBJECT;
         wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
     }
-    fprintf(stderr, "Device_Write_Property: status=%d\n", status);
+
     return (status);
 }
 
