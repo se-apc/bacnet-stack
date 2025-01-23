@@ -2000,6 +2000,10 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                 }
                 if (status) {
                     Device_Write_Property_Store(wp_data);
+                } else {
+                    fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Write_Property else ERROR_CODE_INVALID_DATA_TYPE \n" , __FILE__, __LINE__, __func__ );
+                    wp_data->error_class = ERROR_CLASS_PROPERTY;
+                    wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
                 }
             } else {
                 fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Write_Property else ERROR_CODE_WRITE_ACCESS_DENIED \n" , __FILE__, __LINE__, __func__ );
@@ -2009,7 +2013,7 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         } else {
             fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Valid_Instance else UNKNOWN \n" , __FILE__, __LINE__, __func__ );
             wp_data->error_class = ERROR_CLASS_OBJECT;
-            wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
+            wp_data->error_code = ERROR_CODE_UNSUPPORTED_OBJECT_TYPE;
         }
     } else {
         fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Valid_Instance is NULL \n" , __FILE__, __LINE__, __func__ );
