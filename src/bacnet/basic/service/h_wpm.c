@@ -50,7 +50,7 @@ static int write_property_multiple_decode(
     int len = 0;
     int offset = 0;
     uint8_t tag_number = 0;
-    fprintf(stderr,"[%s %d %s] write_property_multiple_decode \n" , __FILE__, __LINE__, __func__ );
+
     /* decode service request */
     do {
         /* decode Object Identifier */
@@ -78,13 +78,11 @@ static int write_property_multiple_decode(
                             (long)wp_data->array_index);
                         if (device_write_property) {
                             if (device_write_property(wp_data) == false) {
-                                fprintf(stderr,"[%s %d %s] write_property_multiple_decode FALSE \n" , __FILE__, __LINE__, __func__ );
                                 /* Workaround BTL Specified Test 9.23.2.X5 */
                                 if ((wp_data->error_class ==
                                      ERROR_CLASS_PROPERTY) &&
                                     (wp_data->error_code ==
                                      ERROR_CODE_INVALID_DATA_TYPE)) {
-                                    fprintf(stderr,"[%s %d %s] write_property_multiple_decode ERROR_CODE \n" , __FILE__, __LINE__, __func__ );
                                     wp_data->error_class = ERROR_CLASS_PROPERTY;
                                     wp_data->error_code =
                                         ERROR_CODE_INVALID_DATA_TYPE;

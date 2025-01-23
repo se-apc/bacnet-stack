@@ -1974,16 +1974,14 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false; /* Ever the pessimist! */
     struct object_functions *pObject = NULL;
-    fprintf(stderr,"[%s %d %s] Device_Write_Property \n" , __FILE__, __LINE__, __func__ );
+
     /* initialize the default return values */
     wp_data->error_class = ERROR_CLASS_OBJECT;
     wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
     pObject = Device_Objects_Find_Functions(wp_data->object_type);
     if (pObject != NULL) {
-        fprintf(stderr,"[%s %d %s] Device_Write_Property not NULL \n" , __FILE__, __LINE__, __func__ );
         if (pObject->Object_Valid_Instance &&
             pObject->Object_Valid_Instance(wp_data->object_instance)) {
-                fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Valid_Instance \n" , __FILE__, __LINE__, __func__ );
             if (pObject->Object_Write_Property) {
 #if (BACNET_PROTOCOL_REVISION >= 14)
                 if (wp_data->object_property == PROP_PROPERTY_LIST) {
@@ -2001,22 +1999,18 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                 if (status) {
                     Device_Write_Property_Store(wp_data);
                 } else {
-                    fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Write_Property else ERROR_CODE_INVALID_DATA_TYPE \n" , __FILE__, __LINE__, __func__ );
                     wp_data->error_class = ERROR_CLASS_PROPERTY;
                     wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
                 }
             } else {
-                fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Write_Property else ERROR_CODE_WRITE_ACCESS_DENIED \n" , __FILE__, __LINE__, __func__ );
                 wp_data->error_class = ERROR_CLASS_PROPERTY;
                 wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             }
         } else {
-            fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Valid_Instance else UNKNOWN \n" , __FILE__, __LINE__, __func__ );
             wp_data->error_class = ERROR_CLASS_OBJECT;
             wp_data->error_code = ERROR_CODE_UNSUPPORTED_OBJECT_TYPE;
         }
     } else {
-        fprintf(stderr,"[%s %d %s] Device_Write_Property Object_Valid_Instance is NULL \n" , __FILE__, __LINE__, __func__ );
         wp_data->error_class = ERROR_CLASS_OBJECT;
         wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
     }
