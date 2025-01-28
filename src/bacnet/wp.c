@@ -311,9 +311,14 @@ bool write_property_type_valid(
     /* assume success */
     bool valid = true;
 
+    fprintf(stderr, "write_property_type_valid: %d\n", value->tag);
+    fprintf(stderr, "write_property_type_valid: %d\n", expected_tag);
+
     if (value && (value->tag != expected_tag)) {
         valid = false;
+        fprintf(stderr, "write_property_type_valid: %d\n", value->tag);
         if (wp_data) {
+            fprintf(stderr, "write_property_type_valid: ERROR_CODE_INVALID_DATA_TYPE");
             wp_data->error_class = ERROR_CLASS_PROPERTY;
             wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
         }
