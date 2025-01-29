@@ -1654,7 +1654,6 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data)
     if ((wp_data->object_property != PROP_OBJECT_LIST) &&
         (wp_data->array_index != BACNET_ARRAY_ALL)) {
         /*  only array properties can have array options */
-
         wp_data->error_class = ERROR_CLASS_PROPERTY;
         wp_data->error_code = ERROR_CODE_PROPERTY_IS_NOT_AN_ARRAY;
         return false;
@@ -1975,6 +1974,7 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false; /* Ever the pessimist! */
     struct object_functions *pObject = NULL;
+
     /* initialize the default return values */
     wp_data->error_class = ERROR_CLASS_OBJECT;
     wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
