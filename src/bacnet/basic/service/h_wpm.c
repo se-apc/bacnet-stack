@@ -78,17 +78,6 @@ static int write_property_multiple_decode(
                             (long)wp_data->array_index);
                         if (device_write_property) {
                             if (device_write_property(wp_data) == false) {
-                                /* Workaround BTL Specified Test 9.23.2.X5 */
-                                fprintf(stderr, "write_property_multiple wp_data false\n");
-                                if ((wp_data->error_class ==
-                                     ERROR_CLASS_PROPERTY) &&
-                                    (wp_data->error_code ==
-                                     ERROR_CODE_INVALID_DATA_TYPE)) {
-                                    fprintf(stderr, "write_property_multiple wp_data ERROR_CODE_INVALID_DATA_TYPE\n");
-                                    wp_data->error_class = ERROR_CLASS_PROPERTY;
-                                    wp_data->error_code =
-                                        ERROR_CODE_INVALID_DATA_TYPE;
-                                }
                                 return BACNET_STATUS_ERROR;
                             }
                         }

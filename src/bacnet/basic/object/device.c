@@ -1641,7 +1641,7 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data)
 #if defined(BACNET_TIME_MASTER)
     uint32_t minutes = 0;
 #endif
-    fprintf(stderr, "Device_Write_Property_Local\n");
+
     /* decode the some of the request */
     len = bacapp_decode_application_data(
         wp_data->application_data, wp_data->application_data_len, &value);
@@ -1654,7 +1654,7 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data)
     if ((wp_data->object_property != PROP_OBJECT_LIST) &&
         (wp_data->array_index != BACNET_ARRAY_ALL)) {
         /*  only array properties can have array options */
-        fprintf(stderr, "Device_Write_Property_Local: array index error\n");
+
         wp_data->error_class = ERROR_CLASS_PROPERTY;
         wp_data->error_code = ERROR_CODE_PROPERTY_IS_NOT_AN_ARRAY;
         return false;
@@ -1865,11 +1865,9 @@ bool Device_Write_Property_Local(BACNET_WRITE_PROPERTY_DATA *wp_data)
             if (property_lists_member(
                     Device_Properties_Required, Device_Properties_Optional,
                     Device_Properties_Proprietary, wp_data->object_property)) {
-                fprintf(stderr, "Device_Write_Property_Local: unknown property\n");
                 wp_data->error_class = ERROR_CLASS_PROPERTY;
                 wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             } else {
-                fprintf(stderr, "Device_Write_Property_Local: unknown property\n");
                 wp_data->error_class = ERROR_CLASS_PROPERTY;
                 wp_data->error_code = ERROR_CODE_UNKNOWN_PROPERTY;
             }
@@ -1977,7 +1975,6 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false; /* Ever the pessimist! */
     struct object_functions *pObject = NULL;
-    fprintf(stderr, "Device_Write_Property\n");
     /* initialize the default return values */
     wp_data->error_class = ERROR_CLASS_OBJECT;
     wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
@@ -2007,12 +2004,10 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
                 wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             }
         } else {
-            fprintf(stderr, "Device_Write_Property: unknown object 1\n");
             wp_data->error_class = ERROR_CLASS_OBJECT;
             wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
         }
     } else {
-        fprintf(stderr, "Device_Write_Property: unknown object 2\n");
         wp_data->error_class = ERROR_CLASS_OBJECT;
         wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
     }
