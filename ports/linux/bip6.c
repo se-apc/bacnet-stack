@@ -239,7 +239,7 @@ bool bip6_get_addr_by_name(const char *host_name, BACNET_IP6_ADDRESS *addr)
     bool status = false;
     struct addrinfo hints = { 0 }, *info, *result_addrinfo;
     struct sockaddr_in6 *sin;
-    char ipv6addr_ntop[INET6_ADDRSTRLEN] = {0};
+    char ipv6addr_ntop[INET6_ADDRSTRLEN] = { 0 };
     int rv;
 
     hints.ai_family = AF_INET6;
@@ -247,23 +247,18 @@ bool bip6_get_addr_by_name(const char *host_name, BACNET_IP6_ADDRESS *addr)
     hints.ai_protocol = IPPROTO_UDP;
     hints.ai_flags = AI_NUMERICHOST;
     if (BIP6_Debug) {
-        debug_fprintf(
-            stderr, "BIP6: seeking IPv6 address %s\n", host_name);
+        debug_fprintf(stderr, "BIP6: seeking IPv6 address %s\n", host_name);
     }
     rv = getaddrinfo(host_name, NULL, &hints, &result_addrinfo);
     if (rv != 0) {
         debug_perror("BIP6: getaddrinfo failed");
         return false;
     }
-    for(
-        info = result_addrinfo;
-        info != NULL;
-        info = info->ai_next
-    ){
-        sin = (struct sockaddr_in6*)info->ai_addr;
-        inet_ntop(info->ai_family, &sin->sin6_addr, ipv6addr_ntop, info->ai_addrlen);
-        debug_fprintf(
-            stderr, "BIP6: IPv6 address=%s\n", ipv6addr_ntop);
+    for (info = result_addrinfo; info != NULL; info = info->ai_next) {
+        sin = (struct sockaddr_in6 *)info->ai_addr;
+        inet_ntop(
+            info->ai_family, &sin->sin6_addr, ipv6addr_ntop, info->ai_addrlen);
+        debug_fprintf(stderr, "BIP6: IPv6 address=%s\n", ipv6addr_ntop);
         status = bvlc6_address_set(
             addr, ntohs(sin->sin6_addr.s6_addr16[0]),
             ntohs(sin->sin6_addr.s6_addr16[1]),

@@ -428,9 +428,7 @@ static void bbmd6_send_pdu_fdt(uint8_t *mtu, unsigned int mtu_len)
  * @param npdu - the bytes of NPDU+APDU data to send
  * @param npdu_len - the number of bytes of NPDU+APDU data to send
  */
-static void bbmd6_send_forward_npdu(
-    uint8_t *npdu,
-    unsigned int npdu_len)
+static void bbmd6_send_forward_npdu(uint8_t *npdu, unsigned int npdu_len)
 {
     uint8_t mtu[BIP6_MPDU_MAX] = { 0 };
     uint16_t mtu_len = 0;
@@ -966,7 +964,8 @@ int bvlc6_bbmd_enabled_handler(
                     npdu = pdu + header_len + (function_len - npdu_len);
                     bbmd6_send_forward_npdu(npdu, npdu_len);
                 } else {
-                    result_code = BVLC6_RESULT_DISTRIBUTE_BROADCAST_TO_NETWORK_NAK;
+                    result_code =
+                        BVLC6_RESULT_DISTRIBUTE_BROADCAST_TO_NETWORK_NAK;
                     send_result = true;
                 }
                 break;
@@ -1292,8 +1291,7 @@ size_t bvlc6_broadcast_distribution_table_count(void)
     return count;
 }
 
-bool bvlc6_broadcast_distribution_table_member(
-    BACNET_IP6_ADDRESS *addr)
+bool bvlc6_broadcast_distribution_table_member(BACNET_IP6_ADDRESS *addr)
 {
     bool matched = false;
 
@@ -1302,7 +1300,7 @@ bool bvlc6_broadcast_distribution_table_member(
 
     for (i = 0; i < MAX_BBMD6_ENTRIES; i++) {
         if (BBMD_Table[i].valid) {
-            if (!bvlc6_address_different(&BBMD_Table[i].bip6_address,addr)) {
+            if (!bvlc6_address_different(&BBMD_Table[i].bip6_address, addr)) {
                 matched = true;
                 break;
             }
@@ -1312,8 +1310,6 @@ bool bvlc6_broadcast_distribution_table_member(
 
     return matched;
 }
-
-
 
 /**
  * Initialize any tables or other memory
