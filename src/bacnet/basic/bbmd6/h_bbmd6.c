@@ -1306,6 +1306,8 @@ bool bvlc6_broadcast_distribution_table_member(BACNET_IP6_ADDRESS *addr)
             }
         }
     }
+#else
+    (void) addr;
 #endif
 
     return matched;
