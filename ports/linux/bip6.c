@@ -45,7 +45,9 @@
 #include "bacport.h"
 
 /* enable debugging */
-static bool BIP6_Debug = false;
+static bool BIP6_Debug = true;
+#define PRINT_ENABLED (1)
+
 #if PRINT_ENABLED
 #include <stdarg.h>
 #include <stdio.h>
