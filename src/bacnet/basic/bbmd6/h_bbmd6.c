@@ -714,7 +714,7 @@ int bvlc6_bbmd_disabled_handler(BACNET_IP6_ADDRESS *addr,
                 }
                 break;
             case BVLC6_REGISTER_FOREIGN_DEVICE:
-                result_code = BVLC6_RESULT_REGISTER_FOREIGN_DEVICE_NAK;
+                result_code = BVLC6_RESULT_SUCCESSFUL_COMPLETION;
                 send_result = true;
                 break;
             case BVLC6_DELETE_FOREIGN_DEVICE:
