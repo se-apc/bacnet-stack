@@ -8,6 +8,7 @@
  */
 #include <zephyr/ztest.h>
 #include <bacnet/bactext.h>
+#include <bacnet/property.h>
 #include <bacnet/rp.h>
 #include <bacnet/rpm.h>
 #include <bacnet/wp.h>
@@ -23,21 +24,40 @@
  * @return true if the property was written successfully, false if not
  */
 bool bacnet_object_property_write_test(
-    BACNET_WRITE_PROPERTY_DATA *wpdata,
+    BACNET_WRITE_PROPERTY_DATA *wp_data,
     write_property_function write_property,
     const int *skip_fail_property_list)
 {
     bool status = false;
+    bool is_array, is_list;
 
-    (void)skip_fail_property_list;
-    if (wpdata && write_property) {
-        status = write_property(wpdata);
+    if (property_list_member(
+            skip_fail_property_list, wp_data->object_property)) {
+        return true;
+    }
+    if (wp_data && write_property) {
+        status = write_property(wp_data);
         if (!status) {
             /* verify WriteProperty property is known */
             zassert_not_equal(
-                wpdata->error_code, ERROR_CODE_UNKNOWN_PROPERTY,
+                wp_data->error_code, ERROR_CODE_UNKNOWN_PROPERTY,
                 "property '%s': WriteProperty Unknown!\n",
-                bactext_property_name(wpdata->object_property));
+                bactext_property_name(wp_data->object_property));
+        }
+        is_array = property_list_bacnet_array_member(
+            wp_data->object_type, wp_data->object_property);
+        is_list = property_list_bacnet_list_member(
+            wp_data->object_type, wp_data->object_property);
+        if (is_array) {
+            wp_data->array_index = 0;
+            status = write_property(wp_data);
+            if (!status) {
+                zassert_not_equal(
+                    wp_data->error_code, ERROR_CODE_PROPERTY_IS_NOT_AN_ARRAY,
+                    "property=%s array_index=0: error code=%s.\n",
+                    bactext_property_name(wp_data->object_property),
+                    bactext_error_code_name(wp_data->error_code));
+            }
         }
     }
 
@@ -61,8 +81,15 @@ void bacnet_object_property_write_parameter_init(
         wpdata->object_instance = rpdata->object_instance;
         wpdata->object_property = rpdata->object_property;
         wpdata->array_index = rpdata->array_index;
-        memcpy(&wpdata->application_data, rpdata->application_data, MAX_APDU);
-        wpdata->application_data_len = len;
+        if (len >= 0) {
+            memcpy(
+                &wpdata->application_data, rpdata->application_data,
+                sizeof(wpdata->application_data));
+            wpdata->application_data_len = len;
+        } else {
+            wpdata->application_data_len = 0;
+        }
+        wpdata->priority = BACNET_NO_PRIORITY;
         wpdata->error_code = ERROR_CODE_SUCCESS;
     }
 }
@@ -86,6 +113,7 @@ int bacnet_object_property_read_test(
     int apdu_len = 0;
     int read_len = 0;
     uint8_t *apdu;
+    bool is_array, is_list;
     BACNET_ARRAY_INDEX array_index = 0;
     BACNET_APPLICATION_DATA_VALUE value = { 0 };
 
@@ -142,6 +170,20 @@ int bacnet_object_property_read_test(
             read_len, BACNET_STATUS_ERROR, "property '%s': failed to read!\n",
             bactext_property_name(rpdata->object_property));
     }
+    is_array = property_list_bacnet_array_member(
+        rpdata->object_type, rpdata->object_property);
+    is_list = property_list_bacnet_list_member(
+        rpdata->object_type, rpdata->object_property);
+    if (is_array) {
+        /* test an array index that must be implemented */
+        rpdata->array_index = 0;
+        read_len = read_property(rpdata);
+        zassert_not_equal(
+            read_len, BACNET_STATUS_ERROR,
+            "property '%s' array_index=0: error code is %s.\n",
+            bactext_property_name(rpdata->object_property),
+            bactext_error_code_name(rpdata->error_code));
+    }
 
     return len;
 }
@@ -193,7 +235,7 @@ void bacnet_object_properties_read_write_test(
     while ((*pOptional) != -1) {
         rpdata.object_property = *pOptional;
         rpdata.array_index = BACNET_ARRAY_ALL;
-        bacnet_object_property_read_test(
+        len = bacnet_object_property_read_test(
             &rpdata, read_property, skip_fail_property_list);
         bacnet_object_property_write_parameter_init(&wpdata, &rpdata, len);
         bacnet_object_property_write_test(
@@ -203,7 +245,7 @@ void bacnet_object_properties_read_write_test(
     while ((*pProprietary) != -1) {
         rpdata.object_property = *pProprietary;
         rpdata.array_index = BACNET_ARRAY_ALL;
-        bacnet_object_property_read_test(
+        len = bacnet_object_property_read_test(
             &rpdata, read_property, skip_fail_property_list);
         bacnet_object_property_write_parameter_init(&wpdata, &rpdata, len);
         bacnet_object_property_write_test(
@@ -241,11 +283,9 @@ void bacnet_object_name_ascii_test(
     status = ascii_set(object_instance, sample_name);
     zassert_true(status, NULL);
     test_name = ascii_get(object_instance);
-#if 0
-    zassert_str_equal(test_name, sample_name, NULL);
+    zassert_equal(test_name, sample_name, NULL);
     status = ascii_set(object_instance, NULL);
     zassert_true(status, NULL);
     test_name = ascii_get(object_instance);
-    zassert_str_equal(test_name, NULL, NULL);
-#endif
+    zassert_equal(test_name, NULL, NULL);
 }
