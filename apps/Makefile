@@ -350,6 +350,10 @@ router: $(BACNET_LIB_TARGET)
 router-ipv6: $(BACNET_LIB_TARGET)
 	$(MAKE) -B -C $@
 
+.PHONY: addr-res
+addr-res: $(BACNET_LIB_TARGET)
+	$(MAKE) -B -C $@
+
 .PHONY: router-mstp
 router-mstp: $(BACNET_LIB_TARGET)
 	$(MAKE) -B -C $@
