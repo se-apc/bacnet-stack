@@ -108,6 +108,8 @@ static uint8_t Tx_Buffer[MAX(BIP_MPDU_MAX, BIP6_MPDU_MAX)];
 static bool Exit_Requested;
 static uint32_t Target_VMAC = (uint32_t) -1;
 static BACNET_IP6_ADDRESS Target_IP6 = { 0 };
+static uint32_t Interval = 1;
+static bool Send_Address_Resolution = false;
 
 
 /**
@@ -566,35 +568,13 @@ static void send_addr_res()
     fprintf(stderr, "++++[%s %d %s]: encoded %d bytes\r\n",
             __FILE__, __LINE__, __func__,
             len);
-#if 1
+
     vmac_src = Device_Object_Instance_Number();
     fprintf(stderr, "++++[%s %d %s]: vmac_src = %u\r\n",
             __FILE__, __LINE__, __func__,
             vmac_src);
-#if 0
-    mtu_len = bvlc6_encode_original_broadcast(
-        mtu, sizeof(mtu), vmac_src, pdu, len);
-    fprintf(stderr, "++++[%s %d %s]: encoded %d MTU bytes\r\n",
-            __FILE__, __LINE__, __func__,
-            (int) mtu_len);
-#endif
-#if 0
-    mtu_len = bvlc6_encode_original_unicast(
-        mtu, sizeof(mtu), vmac_src, Target_VMAC, pdu, len);
-    fprintf(stderr, "++++[%s %d %s]: encoded %d MTU bytes\r\n",
-            __FILE__, __LINE__, __func__,
-            (int) mtu_len);
-#endif
-#if 1
-    //sent = bip6_send_mpdu(&dest, mtu, mtu_len);
-    //sent = bip6_send_mpdu(&Target_IP6, mtu, mtu_len);
     sent = bip6_send_mpdu(&Target_IP6, pdu, len);
-#else
-    sent = bip6_send_pdu(&ndest, &npdu_data, pdu, len);
-#endif
-#else
-    sent = bip6_send_mpdu(&dest, pdu, len);
-#endif
+
     fprintf(stderr, "++++[%s %d %s]: Sent %d bytes\r\n",
             __FILE__, __LINE__, __func__,
             (int) sent);
@@ -1141,6 +1121,24 @@ static void datalink_init(void)
     if (pEnv) {
         Target_IP6.port = ((uint16_t)strtol(pEnv, NULL, 0));
     }
+    pEnv = getenv("INTERVAL");
+    if (pEnv) {
+        Interval = ((uint16_t)strtol(pEnv, NULL, 0));
+        fprintf(stderr, "[%s %d %s]: Interval = %u\r\n",
+                __FILE__, __LINE__, __func__,
+                Interval);
+    } else {
+         fprintf(stderr, "No INTERVAL set - defaulting to 1[s]\r\n");
+    }
+    pEnv = getenv("SEND_ADDRESS_RESOLUTION");
+    if (pEnv) {
+        Send_Address_Resolution = (strcmp(pEnv, "yes") == 0);
+        fprintf(stderr, "[%s %d %s]: Send_Address_Resolution = %d\r\n",
+                __FILE__, __LINE__, __func__,
+                (int) Send_Address_Resolution);
+    } else {
+         fprintf(stderr, "No SEND_ADDRESS_RESOLUTION set - defaulting to false\r\n");
+    }
     /* configure the next entry in the table */
     bip6_get_my_address(&my_address);
     port_add(BIP6_Net, &my_address);
@@ -1220,6 +1218,7 @@ int main(int argc, char *argv[])
     time_t last_seconds = 0;
     time_t current_seconds = 0;
     uint32_t elapsed_seconds = 0;
+    uint32_t addrres_elapsed_seconds = 0;
 
     printf("BACnet Simple IP Router Demo\n");
     printf("BACnet Stack Version %s\n", BACnet_Version);
@@ -1269,7 +1268,13 @@ int main(int argc, char *argv[])
 
 
             /* ToDo: send the address resolution pdu here */
-            send_addr_res();
+            addrres_elapsed_seconds += elapsed_seconds;
+            if(addrres_elapsed_seconds >= Interval) {
+                if(Send_Address_Resolution) {
+                    send_addr_res();
+                }
+                addrres_elapsed_seconds = 0;
+            }
         }
         if (Exit_Requested) {
             break;

@@ -15,5 +15,7 @@ export BACNET_BBMD_PORT=47809
 export TARGET_VMAC=13
 export TARGET_IP6=2001:bb6:c2ab:6c58:2a29:86ff:fe2f:6eef
 export TARGET_PORT=47808
+export INTERVAL=3
+export SEND_ADDRESS_RESOLUTION=yes
 
 apps/addr-res/addres 55
