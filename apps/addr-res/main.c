@@ -107,9 +107,11 @@ static uint8_t Tx_Buffer[MAX(BIP_MPDU_MAX, BIP6_MPDU_MAX)];
 /* main loop exit control */
 static bool Exit_Requested;
 static uint32_t Target_VMAC = (uint32_t) -1;
+static BACNET_IP6_ADDRESS Source_IP6 = { 0 }; /* for forwarded address res */
 static BACNET_IP6_ADDRESS Target_IP6 = { 0 };
 static uint32_t Interval = 1;
 static bool Send_Address_Resolution = false;
+static bool Send_Forwarded_Address_Resolution = false;
 
 
 /**
@@ -547,13 +549,9 @@ static void send_who_is_router_to_network(uint16_t snet, uint16_t dnet)
 static void send_addr_res()
 {
     BACNET_ADDRESS ndest;
-    //BACNET_IP6_ADDRESS dest;
     bool data_expecting_reply = false;
     BACNET_NPDU_DATA npdu_data;
-    //int pdu_len = 0;
     int len = 0;
-    //DNET *port = NULL;
-    //DNET *dnet = NULL;
     BACNET_IP6_ADDRESS dest;
     uint8_t mtu[BIP6_MPDU_MAX] = { 0 };
     uint8_t pdu[BIP6_MPDU_MAX] = { 0 };
@@ -565,6 +563,48 @@ static void send_addr_res()
     bip6_get_broadcast_addr(&dest);
     bip6_get_broadcast_address(&ndest);
     len = bvlc6_encode_address_resolution(&pdu[0], 10, Device_Instance_Number, Target_VMAC);
+    fprintf(stderr, "++++[%s %d %s]: encoded %d bytes\r\n",
+            __FILE__, __LINE__, __func__,
+            len);
+
+    vmac_src = Device_Object_Instance_Number();
+    fprintf(stderr, "++++[%s %d %s]: vmac_src = %u\r\n",
+            __FILE__, __LINE__, __func__,
+            vmac_src);
+    sent = bip6_send_mpdu(&Target_IP6, pdu, len);
+
+    fprintf(stderr, "++++[%s %d %s]: Sent %d bytes\r\n",
+            __FILE__, __LINE__, __func__,
+            (int) sent);
+
+}
+
+static void send_fwd_addr_res()
+{
+    BACNET_ADDRESS ndest;
+    bool data_expecting_reply = false;
+    BACNET_NPDU_DATA npdu_data;
+    int len = 0;
+    BACNET_IP6_ADDRESS dest;
+    uint8_t mtu[BIP6_MPDU_MAX] = { 0 };
+    uint8_t pdu[BIP6_MPDU_MAX] = { 0 };
+    uint16_t mtu_len = 0;
+    uint32_t vmac_src = 0;
+    int sent = 0;
+
+
+    bip6_get_broadcast_addr(&dest);
+    bip6_get_broadcast_address(&ndest);
+#if 0
+     887 int bvlc6_encode_forwarded_address_resolution(
+ 888     uint8_t *pdu,
+ 889     uint16_t pdu_size,
+ 890     uint32_t vmac_src,
+ 891     uint32_t vmac_target,
+ 892     const BACNET_IP6_ADDRESS *bip6_address)
+
+#endif
+    len = bvlc6_encode_forwarded_address_resolution(&pdu[0], 0x1c, Device_Instance_Number, Target_VMAC, &Source_IP6);
     fprintf(stderr, "++++[%s %d %s]: encoded %d bytes\r\n",
             __FILE__, __LINE__, __func__,
             len);
@@ -1121,6 +1161,25 @@ static void datalink_init(void)
     if (pEnv) {
         Target_IP6.port = ((uint16_t)strtol(pEnv, NULL, 0));
     }
+    pEnv = getenv("ORIGINAL_SOURCE_IP6");
+    if (pEnv) {
+        fprintf(stderr, "+++ [%s %d %s]: ORIGINAL_SOURCE_IP6 = '%s'\r\n",
+                    __FILE__, __LINE__, __func__,
+                    pEnv);
+        int res = inet_pton(AF_INET6, pEnv, &Source_IP6.address);
+        if(res != 1) {
+            fprintf(stderr, "[%s %d %s]: Invalid ORIGINAL_SOURCE_IP6!; errno = %d '%s'\r\n",
+                    __FILE__, __LINE__, __func__,
+                    errno, strerror(errno));
+        }
+    }
+    pEnv = getenv("ORIGINAL_PORT");
+    if (pEnv) {
+        Source_IP6.port = ((uint16_t)strtol(pEnv, NULL, 0));
+        fprintf(stderr, "+++ [%s %d %s]: ORIGINAL_PORT = %d\r\n",
+                    __FILE__, __LINE__, __func__,
+                    (int) Source_IP6.port);
+    }
     pEnv = getenv("INTERVAL");
     if (pEnv) {
         Interval = ((uint16_t)strtol(pEnv, NULL, 0));
@@ -1138,6 +1197,15 @@ static void datalink_init(void)
                 (int) Send_Address_Resolution);
     } else {
          fprintf(stderr, "No SEND_ADDRESS_RESOLUTION set - defaulting to false\r\n");
+    }
+    pEnv = getenv("SEND_FORWARDED_ADDRESS_RESOLUTION");
+    if (pEnv) {
+        Send_Forwarded_Address_Resolution = (strcmp(pEnv, "yes") == 0);
+        fprintf(stderr, "[%s %d %s]: Send_Forwarded_Address_Resolution = %d\r\n",
+                __FILE__, __LINE__, __func__,
+                (int) Send_Forwarded_Address_Resolution);
+    } else {
+         fprintf(stderr, "No SEND_FORWARDED_ADDRESS_RESOLUTION set - defaulting to false\r\n");
     }
     /* configure the next entry in the table */
     bip6_get_my_address(&my_address);
@@ -1272,6 +1340,9 @@ int main(int argc, char *argv[])
             if(addrres_elapsed_seconds >= Interval) {
                 if(Send_Address_Resolution) {
                     send_addr_res();
+                }
+                if(Send_Forwarded_Address_Resolution) {
+                    send_fwd_addr_res();
                 }
                 addrres_elapsed_seconds = 0;
             }
