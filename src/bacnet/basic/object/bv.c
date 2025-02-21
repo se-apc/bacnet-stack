@@ -238,6 +238,7 @@ static BACNET_POLARITY Binary_Polarity(bool value)
     return polarity;
 }
 
+#if 0
 /**
  * @brief Convert from BACNET_POLARITY enumeration to boolean
  * @param binary_value BACNET_POLARITY enumeration
@@ -253,6 +254,7 @@ static bool Binary_Polarity_Boolean(BACNET_POLARITY polarity)
 
     return boolean_value;
 }
+#endif
 
 /**
  * For a given object instance-number, return the present value.
