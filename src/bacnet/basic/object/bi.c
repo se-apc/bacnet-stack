@@ -36,14 +36,15 @@ struct object_data {
     bool Out_Of_Service : 1;
     bool Change_Of_Value : 1;
     bool Present_Value : 1;
+    bool Present_Value_Backup : 1;
     bool Polarity : 1;
     bool Write_Enabled : 1;
     unsigned Event_State : 3;
     uint8_t Reliability;
-    const char *Object_Name;
+    BACNET_CHARACTER_STRING Object_Name;
     const char *Active_Text;
     const char *Inactive_Text;
-    const char *Description;
+    BACNET_CHARACTER_STRING Description;
 #if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
     uint32_t Time_Delay;
     uint32_t Notification_Class;
@@ -327,7 +328,15 @@ void Binary_Input_Out_Of_Service_Set(uint32_t object_instance, bool value)
     pObject = Binary_Input_Object(object_instance);
     if (pObject) {
         if (pObject->Out_Of_Service != value) {
-            pObject->Out_Of_Service = value;
+            /* Lets backup Present_Value when going Out_Of_Service  or restore
+             * when going out of Out_Of_Service */
+            if ((pObject->Out_Of_Service = value)) {
+                pObject->Present_Value_Backup = pObject->Present_Value;
+                pObject->Write_Enabled = true;
+            } else {
+                pObject->Present_Value = pObject->Present_Value_Backup;
+                pObject->Write_Enabled = false;
+            }
             pObject->Change_Of_Value = true;
         }
     }
@@ -517,6 +526,35 @@ bool Binary_Input_Present_Value_Set(
 }
 
 /**
+ * @brief For a given object instance-number, sets the backed up present-value
+ * @param  object_instance - object-instance number of the object
+ * @param  value - enumerated binary present-value
+ * @return  true if values are within range and present-value is set.
+ */
+bool Binary_Input_Present_Value_Backup_Set(
+    uint32_t object_instance, BACNET_BINARY_PV value)
+{
+    bool status = false;
+    struct object_data *const pObject = Binary_Input_Object(object_instance);
+
+    if (pObject) {
+        if (value <= MAX_BINARY_PV) {
+            if (pObject->Polarity != POLARITY_NORMAL) {
+                if (value == BINARY_INACTIVE) {
+                    value = BINARY_ACTIVE;
+                } else {
+                    value = BINARY_INACTIVE;
+                }
+            }
+            pObject->Present_Value_Backup = Binary_Present_Value_Boolean(value);
+            status = true;
+        }
+    }
+
+    return status;
+}
+
+/**
  * For a given object instance-number, sets the present-value
  *
  * @param  object_instance - object-instance number of the object
@@ -579,20 +617,20 @@ static bool Binary_Input_Present_Value_Write(
 bool Binary_Input_Object_Name(
     uint32_t object_instance, BACNET_CHARACTER_STRING *object_name)
 {
-    char text[32] = "";
     bool status = false;
-    struct object_data *pObject;
+    struct object_data *pObject = Binary_Input_Object(object_instance);
 
-    pObject = Binary_Input_Object(object_instance);
     if (pObject) {
-        if (pObject->Object_Name == NULL) {
+        if (characterstring_length(&pObject->Object_Name) > 0) {
+            *object_name = pObject->Object_Name;
+            status = true;
+        } else {
+            char text[32] = "";
+
             snprintf(
                 text, sizeof(text), "BINARY INPUT %lu",
                 (unsigned long)object_instance);
             status = characterstring_init_ansi(object_name, text);
-        } else {
-            status =
-                characterstring_init_ansi(object_name, pObject->Object_Name);
         }
     }
 
@@ -608,12 +646,10 @@ bool Binary_Input_Object_Name(
 bool Binary_Input_Name_Set(uint32_t object_instance, const char *new_name)
 {
     bool status = false;
-    struct object_data *pObject;
+    struct object_data *pObject = Binary_Input_Object(object_instance);
 
-    pObject = Binary_Input_Object(object_instance);
     if (pObject) {
-        status = true;
-        pObject->Object_Name = new_name;
+        status = characterstring_init_ansi(&pObject->Object_Name, new_name);
     }
 
     return status;
@@ -631,7 +667,7 @@ const char *Binary_Input_Name_ASCII(uint32_t object_instance)
 
     pObject = Binary_Input_Object(object_instance);
     if (pObject) {
-        name = pObject->Object_Name;
+        name = pObject->Object_Name.value;
     }
 
     return name;
