@@ -1989,20 +1989,18 @@ bool Network_Port_Remote_BBMD_IP_Address_Set(
 
     if (index < BACNET_NETWORK_PORTS_MAX) {
         if (Object_List[index].Network_Type == PORT_TYPE_BIP) {
-            uint8_t *value = octetstring_value(
-                &Object_List[index].Network.IPv4.BBMD_Address.host.ip_address);
-            uint8_t new_value[4] = { a, b, c, d };
-
-            if ((Object_List[index].Network.IPv4.BBMD_Address.host_name) ||
-                (value[0] != a) || (value[1] != b) || (value[2] != c) ||
-                (value[3] != d)) {
+            if ((Object_List[index].Network.IPv4.BBMD_IP_Address[0] != a) ||
+                (Object_List[index].Network.IPv4.BBMD_IP_Address[1] != b) ||
+                (Object_List[index].Network.IPv4.BBMD_IP_Address[2] != c) ||
+                (Object_List[index].Network.IPv4.BBMD_IP_Address[3] != d)) {
                 Object_List[index].Changes_Pending = true;
             }
-            Object_List[index].Network.IPv4.BBMD_Address.host_name = false;
-            Object_List[index].Network.IPv4.BBMD_Address.host_ip_address = true;
-            status = octetstring_init(
-                &Object_List[index].Network.IPv4.BBMD_Address.host.ip_address,
-                new_value, sizeof(new_value));
+            Object_List[index].Network.IPv4.BBMD_IP_Address[0] = a;
+            Object_List[index].Network.IPv4.BBMD_IP_Address[1] = b;
+            Object_List[index].Network.IPv4.BBMD_IP_Address[2] = c;
+            Object_List[index].Network.IPv4.BBMD_IP_Address[3] = d;
+
+            status = true;
         }
     }
 
