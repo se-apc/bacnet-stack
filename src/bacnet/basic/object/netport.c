@@ -118,6 +118,8 @@ struct object_data {
     BACNET_PORT_QUALITY Quality;
     uint16_t APDU_Length;
     float Link_Speed;
+    bacnet_network_port_activate_changes Activate_Changes;
+    bacnet_network_port_discard_changes Discard_Changes;
     union {
         struct bacnet_ipv4_port IPv4;
         struct bacnet_ipv6_port IPv6;
