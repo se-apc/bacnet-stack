@@ -155,7 +155,6 @@ void handler_write_property(
         }
 
         if (bcontinue) {
-
 #if BACNET_PROTOCOL_REVISION >= 21
             success = handler_write_property_special_null(&wp_data);
 #endif
