@@ -312,10 +312,8 @@ bool write_property_type_valid(
     bool valid = true;
 
     if (value && (value->tag != expected_tag)) {
-        if (value->tag != BACNET_APPLICATION_TAG_NULL) {
-            valid = false;
-        }
-        if (wp_data && !valid) {
+        valid = false;
+        if (wp_data) {
             wp_data->error_class = ERROR_CLASS_PROPERTY;
             wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
         }
@@ -426,4 +424,27 @@ bool write_property_empty_string_valid(
     }
 
     return (valid);
+}
+
+/**
+ * @brief simple validation of BACnetARRAY for Write Property
+ * @param data - #BACNET_WRITE_PROPERTY_DATA data, including
+ *  requested data and space for the reply, or error response.
+ * @return true if the property is an array and the request uses array
+ *  indices.
+ */
+bool write_property_bacnet_array_valid(BACNET_WRITE_PROPERTY_DATA *data)
+{
+    bool is_array;
+
+    /*  only array properties can have array options */
+    is_array = property_list_bacnet_array_member(
+        data->object_type, data->object_property);
+    if (!is_array && (data->array_index != BACNET_ARRAY_ALL)) {
+        data->error_class = ERROR_CLASS_PROPERTY;
+        data->error_code = ERROR_CODE_PROPERTY_IS_NOT_AN_ARRAY;
+        return false;
+    }
+
+    return true;
 }
