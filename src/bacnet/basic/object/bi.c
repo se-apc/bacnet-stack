@@ -680,18 +680,13 @@ bool Binary_Input_Polarity_Set(
  * @param  object_instance - object-instance number of the object
  * @return description text or NULL if not found
  */
-const char *Binary_Input_Description(uint32_t object_instance)
+BACNET_CHARACTER_STRING *Binary_Input_Description(uint32_t object_instance)
 {
-    const char *name = NULL;
-    const struct object_data *pObject;
+    BACNET_CHARACTER_STRING *name = NULL;
+    struct object_data *pObject = Binary_Input_Object(object_instance);
 
-    pObject = Binary_Input_Object(object_instance);
     if (pObject) {
-        if (pObject->Description == NULL) {
-            name = "";
-        } else {
-            name = pObject->Description;
-        }
+        name = &pObject->Description;
     }
 
     return name;
@@ -707,12 +702,10 @@ bool Binary_Input_Description_Set(
     uint32_t object_instance, const char *new_name)
 {
     bool status = false; /* return value */
-    struct object_data *pObject;
+    struct object_data *pObject = Binary_Input_Object(object_instance);
 
-    pObject = Binary_Input_Object(object_instance);
     if (pObject) {
-        status = true;
-        pObject->Description = new_name;
+        status = characterstring_init_ansi(&pObject->Description, new_name);
     }
 
     return status;
@@ -933,7 +926,7 @@ int Binary_Input_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
                 &apdu[0], Binary_Input_Reliability(rpdata->object_instance));
             break;
         case PROP_DESCRIPTION:
-            characterstring_init_ansi(
+            characterstring_copy(
                 &char_string,
                 Binary_Input_Description(rpdata->object_instance));
             apdu_len =
@@ -1273,8 +1266,8 @@ uint32_t Binary_Input_Create(uint32_t object_instance)
 #if defined(INTRINSIC_REPORTING) && (BINARY_INPUT_INTRINSIC_REPORTING)
             unsigned j;
 #endif
-            pObject->Object_Name = NULL;
-            pObject->Description = NULL;
+            characterstring_init_ansi(&pObject->Object_Name, "");
+            characterstring_init_ansi(&pObject->Description, "");
             pObject->Reliability = RELIABILITY_NO_FAULT_DETECTED;
             pObject->Present_Value = false;
             pObject->Out_Of_Service = false;
