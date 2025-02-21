@@ -17,6 +17,20 @@
 #include "bacnet/rp.h"
 #include "bacnet/wp.h"
 
+/**
+ * @brief API for a network port object when changes need to be activated
+ * @param object_instance [in] Object instance number
+ * @return true if successful, else false
+ */
+typedef void (*bacnet_network_port_activate_changes)(uint32_t object_instance);
+
+/**
+ * @brief API for a network port object when changes need to be discarded
+ * @param object_instance [in] Object instance number
+ * @return true if successful, else false
+ */
+typedef void (*bacnet_network_port_discard_changes)(uint32_t object_instance);
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
