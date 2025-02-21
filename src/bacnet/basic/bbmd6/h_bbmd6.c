@@ -17,7 +17,7 @@
 #include "bacnet/basic/bbmd6/vmac.h"
 #include "bacnet/basic/bbmd6/h_bbmd6.h"
 
-static bool BVLC6_Debug;
+static bool BVLC6_Debug = false;
 #if PRINT_ENABLED
 #include <stdarg.h>
 #include <stdio.h>
@@ -613,6 +613,46 @@ static void bbmd6_address_resolution_handler(
 }
 
 /**
+ * Handler for Forwarded-Address-Resolution
+ *
+ * @param addr - BACnet/IPv6 source address any NAK or reply back to.
+ * @param pdu - The received NPDU+APDU buffer.
+ * @param pdu_len - How many bytes in NPDU+APDU buffer.
+ */
+static void bbmd6_forwarded_address_resolution_handler(
+    const BACNET_IP6_ADDRESS *addr, const uint8_t *pdu, uint16_t pdu_len)
+{
+    int function_len = 0;
+    uint32_t vmac_src = 0;
+    uint32_t vmac_target = 0;
+    uint32_t vmac_me = 0;
+    BACNET_IP6_ADDRESS bip6_address = {
+        0,
+    };
+
+    if (addr && pdu) {
+        PRINTF("BIP6: Received Forwarded-Address-Resolution.\n");
+        if (bbmd6_address_match_self(addr)) {
+            /* ignore messages from my IPv6 address */
+        } else {
+            function_len = bvlc6_decode_forwarded_address_resolution(
+                pdu, pdu_len, &vmac_src, &vmac_target, &bip6_address);
+            if (function_len) {
+                bbmd6_add_vmac(vmac_src, addr);
+                vmac_me = Device_Object_Instance_Number();
+                if (vmac_target == vmac_me) {
+                    /* The Address-Resolution-ACK message is unicast
+                       to the B/IPv6 node that originally initiated
+                       the Address-Resolution message. */
+                    bvlc6_send_address_resolution_ack(
+                        &bip6_address, vmac_me, vmac_src);
+                }
+            }
+        }
+    }
+}
+
+/**
  * Handler for Address-Resolution-ACK
  *
  * @param addr - BACnet/IPv6 source address any NAK or reply back to.
@@ -735,9 +775,11 @@ int bvlc6_bbmd_disabled_handler(
                 break;
             case BVLC6_ORIGINAL_BROADCAST_NPDU:
                 PRINTF("BIP6: Received Original-Broadcast-NPDU.\n");
-                if (bbmd6_address_match_self(addr)) {
-                    /* ignore messages from my IPv6 address */
-                    PRINTF("BIP6: Original-Broadcast-NPDU is me!\n");
+                if (Remote_BBMD.port) {
+                    PRINTF("BIP6: Ignore Original-Broadcast-NPDU when "
+                           "registered as a foreign device.\n");
+                } else if (bbmd6_address_match_self(addr)) {
+                    PRINTF("BIP6: Ignore Original-Broadcast-NPDU from self!\n");
                 } else {
                     function_len = bvlc6_decode_original_broadcast(
                         pdu, pdu_len, &vmac_src, NULL, 0, &npdu_len);
@@ -787,8 +829,7 @@ int bvlc6_bbmd_disabled_handler(
                 }
                 break;
             case BVLC6_FORWARDED_ADDRESS_RESOLUTION:
-                result_code = BVLC6_RESULT_ADDRESS_RESOLUTION_NAK;
-                send_result = true;
+                bbmd6_forwarded_address_resolution_handler(addr, pdu, pdu_len);
                 break;
             case BVLC6_ADDRESS_RESOLUTION:
                 bbmd6_address_resolution_handler(addr, pdu, pdu_len);
@@ -912,6 +953,11 @@ int bvlc6_bbmd_enabled_handler(
                 break;
             case BVLC6_ORIGINAL_BROADCAST_NPDU:
                 PRINTF("BIP6: Received Original-Broadcast-NPDU.\n");
+                if (Remote_BBMD.port) {
+                    PRINTF("BIP6: Ignore Original-Broadcast-NPDU when "
+                           "registered as a foreign device.\n");
+                    break;
+                }
                 function_len = bvlc6_decode_original_broadcast(
                     pdu, pdu_len, &vmac_src, NULL, 0, &npdu_len);
                 if (function_len) {
@@ -1052,6 +1098,7 @@ int bvlc6_handler(
 int bvlc6_register_with_bbmd(
     const BACNET_IP6_ADDRESS *bbmd_addr, uint16_t ttl_seconds)
 {
+    int len;
     uint8_t mtu[BIP6_MPDU_MAX] = { 0 };
     uint16_t mtu_len = 0;
     uint32_t vmac_src = 0;
@@ -1063,8 +1110,12 @@ int bvlc6_register_with_bbmd(
     vmac_src = Device_Object_Instance_Number();
     mtu_len = bvlc6_encode_register_foreign_device(
         &mtu[0], sizeof(mtu), vmac_src, ttl_seconds);
+    len = bip6_send_mpdu(bbmd_addr, &mtu[0], mtu_len);
+    if (len > 0) {
+        bip6_leave_group();
+    }
 
-    return bip6_send_mpdu(bbmd_addr, &mtu[0], mtu_len);
+    return len;
 }
 
 /** Get the remote BBMD address that was used to Register as a foreign device
