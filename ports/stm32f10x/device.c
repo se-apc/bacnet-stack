@@ -281,17 +281,6 @@ bool Device_Objects_Property_List_Member(
     return found;
 }
 
-/**
- * @brief Returns the list of required, optional, and proprietary properties
- *       for the Device object.
- * @param pRequired [out] Pointer to the list of required properties
- * @param pOptional [out] Pointer to the list of optional properties
- * @param pProprietary [out] Pointer to the list of proprietary properties
- * @note The lists are terminated with -1.
- * @note The lists are not allocated, so do not free them.
- * @note The lists are static, so do not modify them.
- * @ingroup ObjIntf
- */
 void Device_Property_Lists(
     const int **pRequired, const int **pOptional, const int **pProprietary)
 {
@@ -665,8 +654,13 @@ bool Device_Object_Name_Copy(BACNET_OBJECT_TYPE object_type,
     bool found = false;
 
     pObject = Device_Objects_Find_Functions(object_type);
-    if ((pObject != NULL) && (pObject->Object_Name != NULL)) {
-        found = pObject->Object_Name(object_instance, object_name);
+    if (pObject != NULL) {
+        if (pObject->Object_Valid_Instance &&
+            pObject->Object_Valid_Instance(object_instance)) {
+            if (pObject->Object_Name) {
+                found = pObject->Object_Name(object_instance, object_name);
+            }
+        }
     }
 
     return found;
