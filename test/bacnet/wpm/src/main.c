@@ -17,10 +17,12 @@
 /**
  * @brief Decode service header for WritePropertyMultiple
  */
-static int wpm_decode_apdu(uint8_t *apdu, unsigned apdu_len, uint8_t *invoke_id)
+static int
+wpm_decode_apdu(const uint8_t *apdu, unsigned apdu_len, uint8_t *invoke_id)
 {
     int len = 0;
 
+    (void)apdu_len;
     if (!apdu) {
         return BACNET_STATUS_ERROR;
     }
@@ -39,7 +41,11 @@ static int wpm_decode_apdu(uint8_t *apdu, unsigned apdu_len, uint8_t *invoke_id)
     return len;
 }
 
+#if defined(CONFIG_ZTEST_NEW_API)
+ZTEST(wp_tests, testWritePropertyMultiple)
+#else
 static void testWritePropertyMultiple(void)
+#endif
 {
     BACNET_WRITE_ACCESS_DATA write_access_data[3] = { 0 };
     BACNET_WRITE_ACCESS_DATA test_write_access_data[3] = { 0 };
@@ -64,7 +70,7 @@ static void testWritePropertyMultiple(void)
     property_value[0].propertyIdentifier = PROP_PRESENT_VALUE;
     property_value[0].propertyArrayIndex = 0;
     property_value[0].value.tag = BACNET_APPLICATION_TAG_REAL;
-    property_value[0].value.type.Real = 3.14159;
+    property_value[0].value.type.Real = 3.14159f;
     property_value[0].value.next = NULL;
     property_value[0].priority = 0;
 
@@ -75,7 +81,7 @@ static void testWritePropertyMultiple(void)
     property_value[1].propertyIdentifier = PROP_PRESENT_VALUE;
     property_value[1].propertyArrayIndex = 0;
     property_value[1].value.tag = BACNET_APPLICATION_TAG_REAL;
-    property_value[1].value.type.Real = 1.41421;
+    property_value[1].value.type.Real = 1.41421f;
     property_value[1].value.next = NULL;
     property_value[1].priority = 0;
 
@@ -123,7 +129,8 @@ static void testWritePropertyMultiple(void)
                 &apdu[offset], apdu_len - offset, &wp_data);
             zassert_not_equal(len, 0, NULL);
             offset += len;
-            printf("WPM: type=%lu instance=%lu property=%lu "
+            printf(
+                "WPM: type=%lu instance=%lu property=%lu "
                 "priority=%lu index=%ld\n",
                 (unsigned long)wp_data.object_type,
                 (unsigned long)wp_data.object_instance,
@@ -145,9 +152,13 @@ static void testWritePropertyMultiple(void)
  * @}
  */
 
+#if defined(CONFIG_ZTEST_NEW_API)
+ZTEST_SUITE(wp_tests, NULL, NULL, NULL, NULL, NULL);
+#else
 void test_main(void)
 {
     ztest_test_suite(wp_tests, ztest_unit_test(testWritePropertyMultiple));
 
     ztest_run_test_suite(wp_tests);
 }
+#endif
