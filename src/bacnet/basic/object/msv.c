@@ -509,10 +509,14 @@ static bool Multistate_Value_Out_Of_Service_Write(
 
     pObject = Multistate_Value_Object(object_instance);
     if (pObject) {
+        fprintf(stderr, "MSV Out of Service pObject true\n");
+        fprintf(stderr, "MSV Out of Service pObject->Write_Enabled %d\n",
+            pObject->Write_Enabled);
         if (pObject->Write_Enabled) {
             Multistate_Value_Out_Of_Service_Set(object_instance, value);
             status = true;
         } else {
+            fprintf(stderr, "MSV Out of Service pObject false\n");
             *error_class = ERROR_CLASS_PROPERTY;
             *error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
         }
@@ -912,7 +916,9 @@ bool Multistate_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
         case PROP_OUT_OF_SERVICE:
             status = write_property_type_valid(
                 wp_data, &value, BACNET_APPLICATION_TAG_BOOLEAN);
+            fprintf(stderr, "PROP_OUT_OF_SERVICE status=%d\n", status);
             if (status) {
+                fprintf(stderr, "PROP_OUT_OF_SERVICE STATUS = TRUE\n");
                 status = Multistate_Value_Out_Of_Service_Write(
                     wp_data->object_instance, value.type.Boolean,
                     &wp_data->error_class, &wp_data->error_code);
@@ -922,6 +928,7 @@ bool Multistate_Value_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
             if (property_lists_member(
                     Properties_Required, Properties_Optional,
                     Properties_Proprietary, wp_data->object_property)) {
+                fprintf(stderr, "Multistate Value: default case proper_list\n");
                 wp_data->error_class = ERROR_CLASS_PROPERTY;
                 wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
             } else {
