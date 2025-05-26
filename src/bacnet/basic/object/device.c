@@ -1968,7 +1968,7 @@ static bool Device_Write_Property_Object_Name(
             (characterstring_length(&value) == 0) ||
             (!characterstring_printable(&value))) {
             wp_data->error_class = ERROR_CLASS_PROPERTY;
-            wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
+            wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
         } else {
             status = true;
         }
