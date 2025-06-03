@@ -1976,7 +1976,7 @@ static bool Device_Write_Property_Object_Name(
         wp_data->error_class = ERROR_CLASS_PROPERTY;
         wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
         fprintf(stderr, " [%s %d] Invalid Object Name data type.\n",
-            __FILE_, __LINE__);
+            __FILE__, __LINE__);
     } else {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
         wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
