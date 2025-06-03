@@ -1974,7 +1974,9 @@ static bool Device_Write_Property_Object_Name(
         }
     } else if (len == 0) {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
-        wp_data->error_code = ERROR_CODE_INVALID_DATA_TYPE;
+        wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
+        fprintf(stderr, " [%s %d] Invalid Object Name data type.\n",
+            __FILE_, __LINE__);
     } else {
         wp_data->error_class = ERROR_CLASS_PROPERTY;
         wp_data->error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
@@ -1984,12 +1986,8 @@ static bool Device_Write_Property_Object_Name(
         if (Device_Valid_Object_Name(&value, &object_type, &object_instance)) {
             if ((object_type == wp_data->object_type) &&
                 (object_instance == wp_data->object_instance)) {
-                /* writing the same name to same object gives a
-                 * write-access-denied */
-                wp_data->error_class = ERROR_CLASS_PROPERTY;
-                wp_data->error_code = ERROR_CODE_WRITE_ACCESS_DENIED;
-
-                status = false;
+                /* writing same name to same object */
+                status = true;
             } else {
                 /* name already exists in some object */
                 wp_data->error_class = ERROR_CLASS_PROPERTY;
@@ -1997,6 +1995,9 @@ static bool Device_Write_Property_Object_Name(
                 status = false;
             }
         } else {
+            fprintf(stderr, " [%s %d] before writing the object name, "
+                "we need to set the object name in the device.\n",
+                __FILE__, __LINE__);
             status = Object_Write_Property(wp_data);
         }
     }
