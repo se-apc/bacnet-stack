@@ -1297,7 +1297,9 @@ static void Update_Current_Time(void)
 void Device_getCurrentDateTime(BACNET_DATE_TIME *DateTime)
 {
     Update_Current_Time();
-
+    fprintf(stderr, "Device_getCurrentDateTime: %04d-%02d-%02d %02d:%02d:%02d UTC %d\n",
+        Local_Date.year, Local_Date.month, Local_Date.day,
+        Local_Time.hour, Local_Time.min, Local_Time.sec, UTC_Offset);
     DateTime->date = Local_Date;
     DateTime->time = Local_Time;
 }
@@ -1305,12 +1307,13 @@ void Device_getCurrentDateTime(BACNET_DATE_TIME *DateTime)
 int32_t Device_UTC_Offset(void)
 {
     Update_Current_Time();
-
+    fprintf(stderr, "Device_UTC_Offset: %d\n", UTC_Offset);
     return UTC_Offset;
 }
 
 void Device_UTC_Offset_Set(int16_t offset)
-{
+{   
+    fprintf(stderr, "Device_UTC_Offset_Set: %d\n", offset);
     UTC_Offset = offset;
 }
 
