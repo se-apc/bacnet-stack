@@ -1465,6 +1465,8 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
                 encode_application_character_string(&apdu[0], &char_string);
             break;
         case PROP_LOCAL_TIME:
+            fprintf(stderr, "[%s line %d] Device_Read_Property_Local: "
+                "PROP_LOCAL_TIME\n", __FILE__, __LINE__);
             Update_Current_Time();
             apdu_len = encode_application_time(&apdu[0], &Local_Time);
             break;
@@ -2039,7 +2041,7 @@ bool Device_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
 {
     bool status = false; /* Ever the pessimist! */
     struct object_functions *pObject = NULL;
-
+    fprintf(stderr, "[%s %d] Device_Write_Property", __FILE__, __LINE__);
     /* initialize the default return values */
     wp_data->error_class = ERROR_CLASS_OBJECT;
     wp_data->error_code = ERROR_CODE_UNKNOWN_OBJECT;
