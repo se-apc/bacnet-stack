@@ -113,9 +113,9 @@ bool datetime_local(
         datetime_set_time(
             btime, (uint8_t)tblock->tm_hour, (uint8_t)tblock->tm_min,
             (uint8_t)tblock->tm_sec, (uint8_t)(tv.tv_usec / 10000));
-        fprintf(stderr, [%s %d] "datetime_local: bdate = %04u/%02u/%02u, "
+        fprintf(stderr, "[%s %d] datetime_local: bdate = %04u/%02u/%02u, "
             "btime = %02u:%02u:%02u.%02u\n",
-            __func__, __LINE__, bdate->year, bdate->month, bdate->day,
+            __FILE__, __LINE__, bdate->year, bdate->month, bdate->day,
             btime->hour, btime->min, btime->sec, btime->hundredths);
         if (dst_active) {
             /* The value of tm_isdst is:
@@ -130,8 +130,8 @@ bool datetime_local(
         }
         /* note: timezone is declared in <time.h> stdlib. */
         if (utc_offset_minutes) {
-            fprintf(stderr, "[%s %d] utc_offset_minutes = %d\n",
-                __func__, __LINE__, utc_offset_minutes);
+            fprintf(stderr, "[%s %d] utc_offset_minutes = %hn\n",
+                __FILE__, __LINE__, utc_offset_minutes);
             /* timezone is set to the difference, in seconds,
                 between Coordinated Universal Time (UTC) and
                 local standard time */
