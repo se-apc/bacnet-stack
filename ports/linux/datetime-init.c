@@ -44,6 +44,18 @@ void datetime_timesync(BACNET_DATE *bdate, BACNET_TIME *btime, bool utc)
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     /* fixme: only set the time if off by some amount */
+
+
+    fprintf(stderr, "datetime_timesync: bdate = %04u/%02u/%02u, "
+        "btime = %02u:%02u:%02u.%02u\n",
+        bdate->year, bdate->month, bdate->day,
+        btime->hour, btime->min, btime->sec, btime->hundredths);
+
+    fprintf(stderr, "[%s %d] datetime_timesync: Time_Offset = %d\n",
+        __FILE__, __LINE__, Time_Offset);
+
+    fprintf(stderr, "[%s %d] utc = %d\n",
+        __FILE__, __LINE__, utc);
     timeinfo->tm_year = bdate->year - 1900;
     timeinfo->tm_mon = bdate->month - 1;
     timeinfo->tm_mday = bdate->day;
