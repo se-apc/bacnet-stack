@@ -86,7 +86,7 @@ bool datetime_local(
     struct tm *tblock = NULL;
     struct timeval tv;
     int32_t to;
-    fprintf(stderr, "datetime_local: Time_Offset = %d\n", Time_Offset);
+    fprintf(stderr, "datetime_local: Time_Offset = %d\n", utc_offset_minutes);
     if (gettimeofday(&tv, NULL) == 0) {
         to = Time_Offset;
         tv.tv_sec += (int)to / 1000;

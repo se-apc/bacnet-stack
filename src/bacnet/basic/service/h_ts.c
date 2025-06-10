@@ -96,6 +96,7 @@ void handler_timesync_utc(
             if (handler_timesync_set_callback) {
                 handler_timesync_set_callback(&bdate, &btime, true);
             }
+            fprintf(stderr, "Received UTC TimeSyncronization Request\r\n");
 #if PRINT_ENABLED
             fprintf(stderr, "Received UTC TimeSyncronization Request\r\n");
             show_bacnet_date_time(&bdate, &btime);
