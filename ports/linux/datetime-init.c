@@ -44,18 +44,6 @@ void datetime_timesync(BACNET_DATE *bdate, BACNET_TIME *btime, bool utc)
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     /* fixme: only set the time if off by some amount */
-
-
-    fprintf(stderr, "datetime_timesync: bdate = %04u/%02u/%02u, "
-        "btime = %02u:%02u:%02u.%02u\n",
-        bdate->year, bdate->month, bdate->day,
-        btime->hour, btime->min, btime->sec, btime->hundredths);
-
-    fprintf(stderr, "[%s %d] datetime_timesync: Time_Offset = %d\n",
-        __FILE__, __LINE__, Time_Offset);
-
-    fprintf(stderr, "[%s %d] utc = %d\n",
-        __FILE__, __LINE__, utc);
     timeinfo->tm_year = bdate->year - 1900;
     timeinfo->tm_mon = bdate->month - 1;
     timeinfo->tm_mday = bdate->day;
@@ -99,22 +87,14 @@ bool datetime_local(
     struct timeval tv;
     int32_t to;
 
-    fprintf(stderr, "[%s %d] utc_offset_minutes = %d\n",
-        __FILE__, __LINE__, *utc_offset_minutes);
-
-
     if (gettimeofday(&tv, NULL) == 0) {
-         fprintf(stderr, "[%s %d] gettimeofday: tv_sec = %ld, tv_usec = %ld\n",
-            __FILE__, __LINE__, (long)tv.tv_sec, (long)tv.tv_usec);
+        /* Needed for syncing of Datetime between NMC & BACnet */
         tv.tv_sec += *utc_offset_minutes * 60;
-        fprintf(stderr, "[%s %d] gettimeofday: tv_sec = %ld, tv_usec = %ld\n",
-            __FILE__, __LINE__, (long)tv.tv_sec, (long)tv.tv_usec);
         to = Time_Offset;
         tv.tv_sec += (int)to / 1000;
         tv.tv_usec += (to % 1000) * 1000;
         tblock = (struct tm *)localtime((const time_t *)&tv.tv_sec);
     }
-
     if (tblock) {
         status = true;
         /** struct tm
@@ -131,15 +111,9 @@ bool datetime_local(
         datetime_set_date(
             bdate, (uint16_t)tblock->tm_year + 1900,
             (uint8_t)tblock->tm_mon + 1, (uint8_t)tblock->tm_mday);
-
         datetime_set_time(
             btime, (uint8_t)tblock->tm_hour, (uint8_t)tblock->tm_min,
             (uint8_t)tblock->tm_sec, (uint8_t)(tv.tv_usec / 10000));
-        fprintf(stderr, "[%s %d] datetime_local: bdate = %04u/%02u/%02u, "
-            "btime = %02u:%02u:%02u.%02u\n",
-            __FILE__, __LINE__, bdate->year, bdate->month, bdate->day,
-            btime->hour, btime->min, btime->sec, btime->hundredths);
-
         if (dst_active) {
             /* The value of tm_isdst is:
                - positive if Daylight Saving Time is in effect,
@@ -153,8 +127,6 @@ bool datetime_local(
         }
         /* note: timezone is declared in <time.h> stdlib. */
         if (utc_offset_minutes) {
-            fprintf(stderr, "[%s %d] utc_offset_minutes = %hn\n",
-                __FILE__, __LINE__, utc_offset_minutes);
             /* timezone is set to the difference, in seconds,
                 between Coordinated Universal Time (UTC) and
                 local standard time */
