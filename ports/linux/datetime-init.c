@@ -98,10 +98,15 @@ bool datetime_local(
     struct tm *tblock = NULL;
     struct timeval tv;
     int32_t to;
-    BACNET_DATE_TIME holding_time;
+
     fprintf(stderr, "[%s %d] utc_offset_minutes = %d\n",
         __FILE__, __LINE__, *utc_offset_minutes);
+
+
     if (gettimeofday(&tv, NULL) == 0) {
+         fprintf(stderr, "[%s %d] gettimeofday: tv_sec = %ld, tv_usec = %ld\n",
+            __FILE__, __LINE__, (long)tv.tv_sec, (long)tv.tv_usec);
+        tv.tv_sec += *utc_offset_minutes * 60;
         fprintf(stderr, "[%s %d] gettimeofday: tv_sec = %ld, tv_usec = %ld\n",
             __FILE__, __LINE__, (long)tv.tv_sec, (long)tv.tv_usec);
         to = Time_Offset;
@@ -130,14 +135,6 @@ bool datetime_local(
         datetime_set_time(
             btime, (uint8_t)tblock->tm_hour, (uint8_t)tblock->tm_min,
             (uint8_t)tblock->tm_sec, (uint8_t)(tv.tv_usec / 10000));
-        fprintf(stderr, "[%s %d] datetime_local: bdate = %04u/%02u/%02u, "
-            "btime = %02u:%02u:%02u.%02u\n",
-            __FILE__, __LINE__, bdate->year, bdate->month, bdate->day,
-            btime->hour, btime->min, btime->sec, btime->hundredths);
-        holding_time.date = *bdate;
-        holding_time.time = *btime;
-        datetime_add_minutes(
-            &holding_time, utc_offset_minutes);
         fprintf(stderr, "[%s %d] datetime_local: bdate = %04u/%02u/%02u, "
             "btime = %02u:%02u:%02u.%02u\n",
             __FILE__, __LINE__, bdate->year, bdate->month, bdate->day,
