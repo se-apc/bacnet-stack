@@ -109,8 +109,7 @@ bool datetime_local(
         tv.tv_usec += (to % 1000) * 1000;
         tblock = (struct tm *)localtime((const time_t *)&tv.tv_sec);
     }
-    fprintf(stderr, "[%s %d] tm = %p, tv_sec = %ld, tv_usec = %ld\n",
-        __FILE__, __LINE__, tblock, (long)tv.tv_sec, (long)tv.tv_usec);
+
     if (tblock) {
         status = true;
         /** struct tm
