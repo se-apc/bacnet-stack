@@ -99,8 +99,8 @@ bool datetime_local(
     struct timeval tv;
     int32_t to;
     BACNET_DATE_TIME holding_time;
-    fprintf(stderr, "[%s %d] utc_offset_minutes \n",
-        __FILE__, __LINE__);
+    fprintf(stderr, "[%s %d] utc_offset_minutes = %d\n",
+        __FILE__, __LINE__, *utc_offset_minutes);
     if (gettimeofday(&tv, NULL) == 0) {
         fprintf(stderr, "[%s %d] gettimeofday: tv_sec = %ld, tv_usec = %ld\n",
             __FILE__, __LINE__, (long)tv.tv_sec, (long)tv.tv_usec);

@@ -1312,7 +1312,7 @@ int32_t Device_UTC_Offset(void)
 }
 
 void Device_UTC_Offset_Set(int16_t offset)
-{   
+{
     fprintf(stderr, "Device_UTC_Offset_Set: %d\n", offset);
     UTC_Offset = offset;
 }
