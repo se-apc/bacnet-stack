@@ -98,13 +98,19 @@ bool datetime_local(
     struct tm *tblock = NULL;
     struct timeval tv;
     int32_t to;
-    fprintf(stderr, "datetime_local: Time_Offset = %d\n", utc_offset_minutes);
+    BACNET_DATE_TIME holding_time;
+    fprintf(stderr, "[%s %d] utc_offset_minutes = %d\n",
+        __FILE__, __LINE__, *utc_offset_minutes);
     if (gettimeofday(&tv, NULL) == 0) {
+        fprintf(stderr, "[%s %d] gettimeofday: tv_sec = %ld, tv_usec = %ld\n",
+            __FILE__, __LINE__, (long)tv.tv_sec, (long)tv.tv_usec);
         to = Time_Offset;
         tv.tv_sec += (int)to / 1000;
         tv.tv_usec += (to % 1000) * 1000;
         tblock = (struct tm *)localtime((const time_t *)&tv.tv_sec);
     }
+    fprintf(stderr, "[%s %d] tm = %p, tv_sec = %ld, tv_usec = %ld\n",
+        __FILE__, __LINE__, tblock, (long)tv.tv_sec, (long)tv.tv_usec);
     if (tblock) {
         status = true;
         /** struct tm

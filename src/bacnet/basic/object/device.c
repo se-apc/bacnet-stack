@@ -1465,8 +1465,6 @@ int Device_Read_Property_Local(BACNET_READ_PROPERTY_DATA *rpdata)
                 encode_application_character_string(&apdu[0], &char_string);
             break;
         case PROP_LOCAL_TIME:
-            fprintf(stderr, "[%s line %d] Device_Read_Property_Local: "
-                "PROP_LOCAL_TIME\n", __FILE__, __LINE__);
             Update_Current_Time();
             apdu_len = encode_application_time(&apdu[0], &Local_Time);
             break;
