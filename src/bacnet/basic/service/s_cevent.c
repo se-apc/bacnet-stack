@@ -101,9 +101,6 @@ uint8_t Send_CEvent_Notify(
 
     /* is the device bound? */
     status = address_get_by_device(device_id, &max_apdu, &dest);
-    fprintf(
-        stderr, "[%s %d %s]: DID = %d; status = '%s'\r\n", __FILE__, __LINE__,
-        __func__, device_id, status ? "true" : "false");
     if (status) {
         if (sizeof(Handler_Transmit_Buffer) < max_apdu) {
             max_apdu = sizeof(Handler_Transmit_Buffer);
