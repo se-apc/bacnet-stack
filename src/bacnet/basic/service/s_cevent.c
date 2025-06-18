@@ -101,9 +101,9 @@ uint8_t Send_CEvent_Notify(
 
     /* is the device bound? */
     status = address_get_by_device(device_id, &max_apdu, &dest);
-    fprintf(stderr, "[%s %d %s]: DID = %d; status = '%s'\r\n",
-            __FILE__, __LINE__, __func__,
-            device_id, status ? "true" : "false");
+    fprintf(
+        stderr, "[%s %d %s]: DID = %d; status = '%s'\r\n", __FILE__, __LINE__,
+        __func__, device_id, status ? "true" : "false");
     if (status) {
         if (sizeof(Handler_Transmit_Buffer) < max_apdu) {
             max_apdu = sizeof(Handler_Transmit_Buffer);
@@ -115,7 +115,8 @@ uint8_t Send_CEvent_Notify(
     return invoke_id;
 }
 
-/** Sends an Confirmed Alarm/Event Notification regardless whether the recipient's device is bound.
+/** Sends an Confirmed Alarm/Event Notification regardless whether the
+ * recipient's device is bound.
  * @ingroup EVNOTFCN
  *
  * @param data [in] The information about the Event to be sent.
@@ -127,10 +128,8 @@ uint8_t Send_CEvent_Notify_Dest_Addr(
     const BACNET_EVENT_NOTIFICATION_DATA *data, BACNET_ADDRESS *dest)
 {
     const unsigned max_apdu = sizeof(Handler_Transmit_Buffer);
-    uint8_t invoke_id =
-        Send_CEvent_Notify_Address(
-                Handler_Transmit_Buffer, max_apdu, data, dest);
+    uint8_t invoke_id = Send_CEvent_Notify_Address(
+        Handler_Transmit_Buffer, max_apdu, data, dest);
 
     return invoke_id;
 }
-
