@@ -3285,7 +3285,7 @@ static bool Network_Port_FD_Subscription_Lifetime_Write(
     if (!error_class || !error_code) {
         return status;
     }
-    if (value > UINT16_MAX) {
+    if (value > UINT16_MAX || value == 0) {
         *error_class = ERROR_CLASS_PROPERTY;
         *error_code = ERROR_CODE_VALUE_OUT_OF_RANGE;
         return status;
