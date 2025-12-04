@@ -37,6 +37,12 @@ The git repositories are hosted at the following sites:
 * Secured BACnet file object pathname received from BACnet AtomicWriteFile
   or ReadFile service used without validation which was vulnerable to
   directory traversal attacks. (#1197)
+## [Unreleased] - 2025-12-04
+
+### Security
+
+* Secured npdu_is_expected_reply() function where the MS/TP reply matcher
+  could have an out-of-bounds read. (#1178)
 
 ### Added
 ### Changed
