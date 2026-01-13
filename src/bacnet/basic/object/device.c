@@ -761,7 +761,7 @@ BACNET_REINITIALIZED_STATE Device_Reinitialized_State(void)
 
 bool Device_Reinitialize_State_Set(BACNET_REINITIALIZED_STATE state)
 {
-    if((state < BACNET_REINIT_COLDSTART) || (state > BACNET_REINIT_MAX)) {
+    if ((state < BACNET_REINIT_COLDSTART) || (state > BACNET_REINIT_MAX)) {
         return false;
     }
 
