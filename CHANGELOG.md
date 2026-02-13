@@ -12,9 +12,32 @@ The git repositories are hosted at the following sites:
 * https://bacnet.sourceforge.net/
 * https://github.com/bacnet-stack/bacnet-stack/
 
-## [Unreleased]
+## [Unreleased] - 2026-02-13
 
 ### Security
+
+* Secured decoding length underflow in wp_decode_service_request() and
+  bacnet_action_command_decode() which had similar issue. (#1231)
+* Secured Schedule_Weekly_Schedule_Set() the example schedule object
+  by fixing stack buffer overflow. The memcpy was using
+  sizeof(BACNET_WEEKLY_SCHEDULE) instead of sizeof(BACNET_DAILY_SCHEDULE),
+  causing it to read 6784 bytes from a 968-byte source buffer, leading
+  to stack buffer overflow and segmentation fault in the test_schedule
+  unit test. (#1222)
+* Secured npdu_is_expected_reply() function where the MS/TP reply matcher
+  could have an out-of-bounds read. (#1178)
+* Secured ubasic interpreter tokenizer_string() and tokenizer_label()
+  off-by-one buffer overflow when processing string literals longer
+  than the buffer limit.
+  Fixed ubasic potential string buffer overflows by using snprintf.
+  Fixed ubasic label strings to use UBASIC_LABEL_LEN_MAX as buffer limit.
+  Fixed ubasic string variables to initialize with zeros.
+  Fixed compile errors when UBASIC_DEBUG_STRINGVARIABLES is defined.
+  Added ubasic string variables user accessor API and unit testing. (#1196)
+* Secured BACnet file object pathname received from BACnet AtomicWriteFile
+  or ReadFile service used without validation which was vulnerable to
+  directory traversal attacks. (#1197)
+
 ### Added
 ### Changed
 ### Fixed
