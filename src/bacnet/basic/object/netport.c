@@ -2591,6 +2591,7 @@ bool Network_Port_IPv6_Address_Set(
             for (i = 0; i < IPV6_ADDR_SIZE; i++) {
                 Object_List[index].Network.IPv6.IP_Address[i] = ip_address[i];
             }
+            status = true;
         }
     }
 
@@ -2704,6 +2705,7 @@ bool Network_Port_IPv6_Gateway_Set(
             for (i = 0; i < IPV6_ADDR_SIZE; i++) {
                 Object_List[index].Network.IPv6.IP_Gateway[i] = ip_address[i];
             }
+            status = true;
         }
     }
 
@@ -2856,6 +2858,7 @@ bool Network_Port_IPv6_Multicast_Address_Set(
                 Object_List[index].Network.IPv6.IP_Multicast_Address[i] =
                     ip_address[i];
             }
+            status = true;
         }
     }
 
