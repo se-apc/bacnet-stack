@@ -222,8 +222,7 @@ SUBDIRS = lib readprop writeprop readfile writefile reinit server dcc \
 ifeq (${BACDL_DEFINE},-DBACDL_BIP=1)
 	SUBDIRS += whoisrouter iamrouter initrouter whatisnetnum netnumis
 	ifneq (${BBMD},none)
-	SUBDIRS += readbdt readfdt
-	# writebdt
+	SUBDIRS += readbdt readfdt writebdt
 	endif
 endif
 
