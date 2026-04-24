@@ -37,6 +37,14 @@ Send_CEvent_Notify(uint32_t device_id, BACNET_EVENT_NOTIFICATION_DATA *data)
     return 0;
 }
 
+uint8_t Send_CEvent_Notify_Dest_Addr(
+    BACNET_EVENT_NOTIFICATION_DATA *data, BACNET_ADDRESS *dest)
+{
+    (void)data;
+    (void)dest;
+    return 0;
+}
+
 void Send_WhoIs(int32_t low_limit, int32_t high_limit)
 {
     (void)low_limit;

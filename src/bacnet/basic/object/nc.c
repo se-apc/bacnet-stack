@@ -732,6 +732,9 @@ void Notification_Class_common_reporting_function(
                 if (pBacDest->ConfirmedNotify == true) {
                     if (address_get_device_id(&dest, &device_id)) {
                         Send_CEvent_Notify(device_id, event_data);
+                    } else {
+                        dest = pBacDest->Recipient.type.address;
+                        Send_CEvent_Notify_Dest_Addr(event_data, &dest);
                     }
                 } else {
                     Send_UEvent_Notify(Event_Buffer, event_data, &dest);
