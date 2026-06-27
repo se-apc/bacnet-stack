@@ -868,6 +868,7 @@ int Notification_Class_Add_List_Element(BACNET_LIST_ELEMENT_DATA *list_element)
             application_data, application_data_len, &recipient_list[index]);
         if (len > 0) {
             new_element_count++;
+            application_data += len;
             application_data_len -= len;
             if (new_element_count >= NC_MAX_RECIPIENTS) {
                 list_element->first_failed_element_number = new_element_count;
@@ -1031,6 +1032,7 @@ int Notification_Class_Remove_List_Element(
             application_data, application_data_len, &recipient_list[index]);
         if (len > 0) {
             remove_element_count++;
+            application_data += len;
             application_data_len -= len;
             if (remove_element_count >= NC_MAX_RECIPIENTS) {
                 list_element->first_failed_element_number =
