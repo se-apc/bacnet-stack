@@ -44,7 +44,6 @@ add_executable(${PROJECT_NAME}
     # core files needed
     ${SRC_DIR}/bacnet/bacdcode.c
     ${SRC_DIR}/bacnet/bacint.c
-    ${SRC_DIR}/bacnet/bacstr.c
     ${SRC_DIR}/bacnet/bacreal.c
     ${SRC_DIR}/bacnet/npdu.c
     ${SRC_DIR}/bacnet/basic/sys/bigend.c

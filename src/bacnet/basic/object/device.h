@@ -144,9 +144,9 @@ typedef struct object_functions {
 
 /* String Lengths - excluding any nul terminator */
 #define MAX_DEV_NAME_LEN 32
-#define MAX_DEV_LOC_LEN 64
-#define MAX_DEV_MOD_LEN 32
-#define MAX_DEV_VER_LEN 16
+#define MAX_DEV_LOC_LEN 255 * 4 /* 4 bytes max for a UTF8 code point */
+#define MAX_DEV_MOD_LEN 64
+#define MAX_DEV_VER_LEN 64
 #define MAX_DEV_DESC_LEN 64
 
 /** Structure to define the Object Properties common to all Objects. */
@@ -215,6 +215,9 @@ rr_info_function Device_Objects_RR_Info(BACNET_OBJECT_TYPE object_type);
 
 BACNET_STACK_EXPORT
 void Device_getCurrentDateTime(BACNET_DATE_TIME *DateTime);
+
+BACNET_STACK_EXPORT
+void Device_Set_Datetime(BACNET_DATE *date, BACNET_TIME *time);
 
 BACNET_STACK_EXPORT
 int32_t Device_UTC_Offset(void);

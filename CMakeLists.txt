@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(
   bacnet-stack
-  VERSION 1.4.0.19
+  VERSION 1.4.0.21
   LANGUAGES C)
 
 message(STATUS "Minimal optimization, debug info included")
@@ -716,6 +716,7 @@ target_compile_definitions(
   $<$<BOOL:${BACNET_PROPERTY_LISTS}>:BACNET_PROPERTY_LISTS=1>
   $<$<BOOL:${BAC_ROUTING}>:BAC_ROUTING>
   $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:BACNET_STACK_STATIC_DEFINE>
+  BACNET_SE_NMC_TIME_OFFSET=1
   PRIVATE
   BACNET_NETWORK_PORT_IP_DHCP_ENABLED=1
   BACDL_MULTIPLE=1

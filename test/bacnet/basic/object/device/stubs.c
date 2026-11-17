@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2006 Steve Karg <skarg@users.sourceforge.net>
  *
- * SPDX-License-Identifier: MIT
+ * @copyright SPDX-License-Identifier: MIT
  *
  *********************************************************************/
 
@@ -16,6 +16,13 @@
 
 void datetime_init(void)
 {
+}
+
+void datetime_timesync(BACNET_DATE *bdate, BACNET_TIME *btime, bool utc)
+{
+    (void)bdate;
+    (void)btime;
+    (void)utc;
 }
 
 bool datetime_local(

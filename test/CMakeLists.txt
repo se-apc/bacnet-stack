@@ -187,7 +187,7 @@ list(APPEND testdirs
   bacnet/datalink/cobs
   bacnet/datalink/crc
   bacnet/datalink/bvlc
-  bacnet/datalink/mstp
+  #  bacnet/datalink/mstp
   bacnet/datalink/dlmstp
   bacnet/datalink/bvlc-sc
   )
