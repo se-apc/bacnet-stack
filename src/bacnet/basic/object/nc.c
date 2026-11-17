@@ -593,23 +593,31 @@ IsRecipientActive(BACNET_DESTINATION *pBacDest, uint8_t EventToState)
         case EVENT_STATE_LOW_LIMIT:
             if (!bitstring_bit(
                     &pBacDest->Transitions, TRANSITION_TO_OFFNORMAL)) {
+                fprintf(stderr,
+                    "NC: recipient skipped: offnormal transition disabled\n");
                 return false;
             }
             break;
 
         case EVENT_STATE_FAULT:
             if (!bitstring_bit(&pBacDest->Transitions, TRANSITION_TO_FAULT)) {
+                fprintf(stderr,
+                    "NC: recipient skipped: fault transition disabled\n");
                 return false;
             }
             break;
 
         case EVENT_STATE_NORMAL:
             if (!bitstring_bit(&pBacDest->Transitions, TRANSITION_TO_NORMAL)) {
+                fprintf(stderr,
+                    "NC: recipient skipped: normal transition disabled\n");
                 return false;
             }
             break;
 
         default:
+            fprintf(stderr, "NC: recipient skipped: unsupported toState=%u\n",
+                (unsigned)EventToState);
             return false; /* shouldn't happen */
     }
 
@@ -618,16 +626,34 @@ IsRecipientActive(BACNET_DESTINATION *pBacDest, uint8_t EventToState)
 
     /* valid Days */
     if (!(bitstring_bit(&pBacDest->ValidDays, (DateTime.date.wday - 1)))) {
+        fprintf(stderr, "NC: recipient skipped: weekday=%u disabled\n",
+            (unsigned)DateTime.date.wday);
         return false;
     }
 
     /* valid FromTime */
     if (datetime_compare_time(&DateTime.time, &pBacDest->FromTime) < 0) {
+        fprintf(stderr,
+            "NC: recipient skipped: current time=%02u:%02u:%02u.%02u "
+            "before FromTime=%02u:%02u:%02u.%02u\n",
+            (unsigned)DateTime.time.hour, (unsigned)DateTime.time.min,
+            (unsigned)DateTime.time.sec, (unsigned)DateTime.time.hundredths,
+            (unsigned)pBacDest->FromTime.hour, (unsigned)pBacDest->FromTime.min,
+            (unsigned)pBacDest->FromTime.sec,
+            (unsigned)pBacDest->FromTime.hundredths);
         return false;
     }
 
     /* valid ToTime */
     if (datetime_compare_time(&pBacDest->ToTime, &DateTime.time) < 0) {
+        fprintf(stderr,
+            "NC: recipient skipped: current time=%02u:%02u:%02u.%02u "
+            "after ToTime=%02u:%02u:%02u.%02u\n",
+            (unsigned)DateTime.time.hour, (unsigned)DateTime.time.min,
+            (unsigned)DateTime.time.sec, (unsigned)DateTime.time.hundredths,
+            (unsigned)pBacDest->ToTime.hour, (unsigned)pBacDest->ToTime.min,
+            (unsigned)pBacDest->ToTime.sec,
+            (unsigned)pBacDest->ToTime.hundredths);
         return false;
     }
 
@@ -644,12 +670,22 @@ void Notification_Class_common_reporting_function(
     uint32_t notify_index;
     uint8_t index;
 
+    fprintf(stderr,
+        "NC[%u]: reporting object=%u:%u fromState=%u toState=%u "
+        "notifyType=%u\n",
+        (unsigned)event_data->notificationClass,
+        (unsigned)event_data->eventObjectIdentifier.type,
+        (unsigned)event_data->eventObjectIdentifier.instance,
+        (unsigned)event_data->fromState, (unsigned)event_data->toState,
+        (unsigned)event_data->notifyType);
     notify_index =
         Notification_Class_Instance_To_Index(event_data->notificationClass);
 
     if (notify_index < MAX_NOTIFICATION_CLASSES) {
         CurrentNotify = &NC_Info[notify_index];
     } else {
+        fprintf(stderr, "NC[%u]: not sent: invalid notification class\n",
+            (unsigned)event_data->notificationClass);
         return;
     }
 
@@ -689,17 +725,27 @@ void Notification_Class_common_reporting_function(
             break;
 
         default: /* shouldn't happen */
+            fprintf(stderr,
+                "NC[%u]: unsupported toState=%u; recipients will be filtered\n",
+                (unsigned)event_data->notificationClass,
+                (unsigned)event_data->toState);
             break;
     }
 
     /* send notifications for active recipients */
-    debug_printf_stderr(
-        "Notification Class[%u]: send notifications\n",
-        event_data->notificationClass);
+    fprintf(stderr, "NC[%u]: checking %u recipients\n",
+        (unsigned)event_data->notificationClass, (unsigned)NC_MAX_RECIPIENTS);
     /* pointer to first recipient */
     pBacDest = &CurrentNotify->Recipient_List[0];
     for (index = 0; index < NC_MAX_RECIPIENTS; index++, pBacDest++) {
+        fprintf(stderr,
+            "NC[%u]: recipient=%u tag=%u process=%u confirmed=%u\n",
+            (unsigned)event_data->notificationClass, (unsigned)index,
+            (unsigned)pBacDest->Recipient.tag,
+            (unsigned)pBacDest->ProcessIdentifier,
+            (unsigned)pBacDest->ConfirmedNotify);
         if (bacnet_recipient_device_wildcard(&pBacDest->Recipient)) {
+            fprintf(stderr, "NC: recipient skipped: wildcard device\n");
             continue;
         }
         if (IsRecipientActive(pBacDest, event_data->toState)) {
@@ -714,28 +760,43 @@ void Notification_Class_common_reporting_function(
             if (pBacDest->Recipient.tag == BACNET_RECIPIENT_TAG_DEVICE) {
                 /* send notification to the specified device */
                 device_id = pBacDest->Recipient.type.device.instance;
-                debug_printf_stderr(
-                    "Notification Class[%u]: send notification to %u\n",
-                    event_data->notificationClass, (unsigned)device_id);
+                fprintf(stderr, "NC: attempting notification to device=%u\n",
+                    (unsigned)device_id);
                 if (pBacDest->ConfirmedNotify == true) {
                     Send_CEvent_Notify(device_id, event_data);
                 } else if (address_get_by_device(device_id, &max_apdu, &dest)) {
                     Send_UEvent_Notify(Event_Buffer, event_data, &dest);
+                } else {
+                    fprintf(stderr,
+                        "NC: unconfirmed notification not sent: "
+                        "no address binding for device=%u\n",
+                        (unsigned)device_id);
                 }
             } else if (
                 pBacDest->Recipient.tag == BACNET_RECIPIENT_TAG_ADDRESS) {
-                debug_printf_stderr(
-                    "Notification Class[%u]: send notification to ADDR\n",
-                    event_data->notificationClass);
+                fprintf(stderr,
+                    "NC: attempting notification to address: "
+                    "net=%u mac_len=%u routed_len=%u\n",
+                    (unsigned)pBacDest->Recipient.type.address.net,
+                    (unsigned)pBacDest->Recipient.type.address.mac_len,
+                    (unsigned)pBacDest->Recipient.type.address.len);
                 /* send notification to the address indicated */
                 dest = pBacDest->Recipient.type.address;
                 if (pBacDest->ConfirmedNotify == true) {
                     if (address_get_device_id(&dest, &device_id)) {
                         Send_CEvent_Notify(device_id, event_data);
+                    } else {
+                        fprintf(stderr,
+                            "NC: confirmed notification not sent: "
+                            "no device binding for recipient address\n");
                     }
                 } else {
                     Send_UEvent_Notify(Event_Buffer, event_data, &dest);
                 }
+            } else {
+                fprintf(stderr,
+                    "NC: notification not sent: unsupported recipient tag=%u\n",
+                    (unsigned)pBacDest->Recipient.tag);
             }
         }
     }

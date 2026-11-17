@@ -6,6 +6,15 @@ set (CMAKE_INSTALL_PREFIX "/opt/poky/rzn1/sysroots/x86_64-pokysdk-linux/usr/")
 Add DEBUG_PRINT compile flag to compile_options to print out debug messages, e.g.:
 add_compile_options(-DDEBUG_PRINT -DMAX_ANALOG_VALUES=32 -DMAX_ANALOG_INPUTS=32)
 
+Notification Class reporting and the confirmed/unconfirmed EventNotification
+send functions emit unconditional diagnostics to stderr, even without
+`DEBUG_PRINT`. These include recipient filtering, missing address bindings,
+DCC suppression, unavailable TSM invoke IDs, PDU size rejection and datalink
+send results. A returned invoke ID or positive send result is not proof of
+delivery or acknowledgement. Failed confirmed datalink sends retain their
+transaction for the existing retry/timeout handling. This verbose diagnostic
+instrumentation can affect timing during performance tests.
+
 # BACnet Stack
 
 BACnet open source protocol stack C library for embedded systems,
