@@ -865,7 +865,8 @@ int Notification_Class_Add_List_Element(BACNET_LIST_ELEMENT_DATA *list_element)
     application_data_len = list_element->application_data_len;
     while (application_data_len > 0) {
         len = bacnet_destination_decode(
-            application_data, application_data_len, &recipient_list[index]);
+            application_data, application_data_len,
+            &recipient_list[new_element_count]);
         if (len > 0) {
             new_element_count++;
             application_data += len;
@@ -1029,7 +1030,8 @@ int Notification_Class_Remove_List_Element(
     application_data_len = list_element->application_data_len;
     while (application_data_len > 0) {
         len = bacnet_destination_decode(
-            application_data, application_data_len, &recipient_list[index]);
+            application_data, application_data_len,
+            &recipient_list[remove_element_count]);
         if (len > 0) {
             remove_element_count++;
             application_data += len;

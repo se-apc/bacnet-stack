@@ -12,6 +12,14 @@
 #include <bacnet/wp.h>
 #include <bacnet/basic/object/nc.h>
 
+static void set_recipient_device(
+    BACNET_RECIPIENT *recipient, uint32_t instance)
+{
+    recipient->tag = BACNET_RECIPIENT_TAG_DEVICE;
+    recipient->type.device.type = OBJECT_DEVICE;
+    recipient->type.device.instance = instance;
+}
+
 /**
  * @addtogroup bacnet_tests
  * @{
@@ -182,7 +190,7 @@ static void test_Notification_Class_Add_List_Element_Overflow(void)
 
     /* Test 1: Successfully add one recipient */
     total_len = 0;
-    bacnet_recipient_device_set(&destination.Recipient, OBJECT_DEVICE, 100);
+    set_recipient_device(&destination.Recipient, 100);
     destination.ProcessIdentifier = 0;
     len = bacnet_destination_encode(&apdu[total_len], &destination);
     zassert(len > 0, "encode failed", NULL);
@@ -205,8 +213,7 @@ static void test_Notification_Class_Add_List_Element_Overflow(void)
     total_len = 0;
     for (i = 0; i < NC_MAX_RECIPIENTS && total_len < (int)sizeof(apdu_large);
          i++) {
-        bacnet_recipient_device_set(
-            &destination.Recipient, OBJECT_DEVICE, 200 + i);
+        set_recipient_device(&destination.Recipient, 200 + i);
         destination.ProcessIdentifier = 100 + i;
         len = bacnet_destination_encode(&apdu_large[total_len], &destination);
         if (len > 0) {
@@ -296,8 +303,7 @@ static void test_Notification_Class_Remove_List_Element_Overflow(void)
     /* Test 1: Add two recipients for removal testing */
     total_len = 0;
     for (i = 0; i < 2 && total_len < (int)sizeof(apdu_add); i++) {
-        bacnet_recipient_device_set(
-            &destination.Recipient, OBJECT_DEVICE, 100 + i);
+        set_recipient_device(&destination.Recipient, 100 + i);
         destination.ProcessIdentifier = i;
         len = bacnet_destination_encode(&apdu_add[total_len], &destination);
         zassert(len > 0, "encode failed for add", NULL);
@@ -331,7 +337,7 @@ static void test_Notification_Class_Remove_List_Element_Overflow(void)
 
     /* Test 2: Successfully remove the added recipient */
     total_len = 0;
-    bacnet_recipient_device_set(&destination.Recipient, OBJECT_DEVICE, 100);
+    set_recipient_device(&destination.Recipient, 100);
     len = bacnet_destination_encode(&apdu_remove[total_len], &destination);
     zassert(len > 0, "encode failed for remove", NULL);
     total_len = len;
@@ -348,8 +354,7 @@ static void test_Notification_Class_Remove_List_Element_Overflow(void)
     for (i = 0; i < (NC_MAX_RECIPIENTS + extra_count) &&
          total_len < (int)sizeof(apdu_remove);
          i++) {
-        bacnet_recipient_device_set(
-            &destination.Recipient, OBJECT_DEVICE, 200 + i);
+        set_recipient_device(&destination.Recipient, 200 + i);
         destination.ProcessIdentifier = 200 + i;
         len = bacnet_destination_encode(&apdu_remove[total_len], &destination);
         if (len > 0) {
@@ -379,7 +384,7 @@ static void test_Notification_Class_Remove_List_Element_Overflow(void)
     list_element.application_data_len = 1;
     err = Notification_Class_Remove_List_Element(&list_element);
     zassert_equal(err, BACNET_STATUS_ERROR, "Should error on invalid property");
-    zassert_equal(list_element.error_class, ERROR_CLASS_PROPERTY, NULL);
+    zassert_equal(list_element.error_class, ERROR_CLASS_SERVICES, NULL);
 
     return;
 }

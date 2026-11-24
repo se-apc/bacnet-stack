@@ -284,15 +284,26 @@ int bacnet_address_decode(
     if (len <= 0) {
         return BACNET_STATUS_ERROR;
     }
+    if (mac_addr.length > MAX_MAC_LEN) {
+        return BACNET_STATUS_ERROR;
+    }
     if (value) {
-        if (mac_addr.length > sizeof(value->mac)) {
-            return BACNET_STATUS_ERROR;
-        }
-        /* bounds checking - passed! */
-        value->mac_len = mac_addr.length;
-        /* copy address */
-        for (i = 0; i < value->mac_len; i++) {
-            value->mac[i] = mac_addr.value[i];
+        if (decoded_unsigned != 0) {
+            value->len = mac_addr.length;
+            memset(value->adr, 0, sizeof(value->adr));
+            for (i = 0; i < value->len; i++) {
+                value->adr[i] = mac_addr.value[i];
+            }
+            value->mac_len = 0;
+            memset(value->mac, 0, sizeof(value->mac));
+        } else {
+            value->mac_len = mac_addr.length;
+            memset(value->mac, 0, sizeof(value->mac));
+            for (i = 0; i < value->mac_len; i++) {
+                value->mac[i] = mac_addr.value[i];
+            }
+            value->len = 0;
+            memset(value->adr, 0, sizeof(value->adr));
         }
     }
     apdu_len += len;
