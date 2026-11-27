@@ -246,6 +246,42 @@ static void test_BACnetAddress_Codec(void)
         test_len = bacnet_address_context_decode(apdu, len, tag_number, NULL);
         zassert_equal(test_len, BACNET_STATUS_ERROR, NULL);
     }
+
+    value.net = 1;
+    value.len = 3;
+    value.adr[0] = 0x12;
+    value.adr[1] = 0x34;
+    value.adr[2] = 0x56;
+    value.mac_len = 6;
+    len = encode_bacnet_address(apdu, &value);
+    test_len = bacnet_address_decode(apdu, sizeof(apdu), &test_value);
+    zassert_equal(len, test_len, NULL);
+    zassert_equal(test_value.net, value.net, NULL);
+    zassert_equal(test_value.len, value.len, NULL);
+    zassert_equal(test_value.adr[0], value.adr[0], NULL);
+    zassert_equal(test_value.adr[1], value.adr[1], NULL);
+    zassert_equal(test_value.adr[2], value.adr[2], NULL);
+    zassert_equal(test_value.mac_len, 0, NULL);
+    for (unsigned i = 0; i < MAX_MAC_LEN; i++) {
+        zassert_equal(test_value.mac[i], 0, NULL);
+    }
+
+    value.net = 0;
+    value.len = 0;
+    value.mac_len = 2;
+    value.mac[0] = 0xab;
+    value.mac[1] = 0xcd;
+    len = encode_bacnet_address(apdu, &value);
+    test_len = bacnet_address_decode(apdu, sizeof(apdu), &test_value);
+    zassert_equal(len, test_len, NULL);
+    zassert_equal(test_value.net, 0, NULL);
+    zassert_equal(test_value.len, 0, NULL);
+    zassert_equal(test_value.mac_len, 2, NULL);
+    zassert_equal(test_value.mac[0], value.mac[0], NULL);
+    zassert_equal(test_value.mac[1], value.mac[1], NULL);
+    for (unsigned i = 0; i < MAX_MAC_LEN; i++) {
+        zassert_equal(test_value.adr[i], 0, NULL);
+    }
 }
 
 /**
